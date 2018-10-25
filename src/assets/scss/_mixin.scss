@@ -1,0 +1,35 @@
+/*
+*混合*
+*/
+//flex布局 参数：横轴，纵轴
+@mixin flex($main:flex-start,$cross:center){
+  display: flex;
+  display: -webkit-flex; /* Safari */
+  justify-content: $main;
+  align-items: $cross;
+}
+//多行文本省略号 参数：行数
+@mixin ellipsis($row){
+  overflow : hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $row;
+  -webkit-box-orient: vertical;
+}
+/*
+*延伸*
+*/
+//超出部分省略号
+%ellipsis{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+//主体宽度
+%width{
+  width: 1200px;
+  margin: 0 auto;
+  @media only screen and (max-width:767px) {
+    width: 100%;
+  }
+}
