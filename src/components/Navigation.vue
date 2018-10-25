@@ -3,12 +3,13 @@
     <div class="content">
       <div class="title"><i class="fa fa-address-book-o"></i>学生成长档案</div>
       <el-menu class="menu"
+               router
               default-active="backstage/1"
               mode="horizontal"
               background-color="#009688"
               text-color="#fff"
               active-text-color="#ffd04b">
-        <el-menu-item index="backstage/1">学校维度</el-menu-item>
+        <el-menu-item index="/backstage/1">学校维度</el-menu-item>
         <el-menu-item index="2">档案管理</el-menu-item>
         <el-menu-item index="3">过程评价</el-menu-item>
         <el-menu-item index="4">记录方式</el-menu-item>
@@ -46,7 +47,7 @@ export default {
         }
       }
       .menu{
-        .el-menu--horizontal{
+        &.el-menu--horizontal{
           border-bottom: none;
         }
         .el-submenu__title i{
