@@ -12,7 +12,6 @@
         <el-menu-item index="/backstage/1">学校维度</el-menu-item>
         <el-menu-item index="2">档案管理</el-menu-item>
         <el-menu-item index="3">过程评价</el-menu-item>
-        <el-menu-item index="4">记录方式</el-menu-item>
         <el-menu-item index="5">成长奖章</el-menu-item>
         <el-menu-item index="6">管理员设置</el-menu-item>
         <el-submenu index="7">

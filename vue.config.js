@@ -1,4 +1,4 @@
-const target='http://localhost:3000';
+const target='http://192.168.0.184:8085/api';
 module.exports = {
   // 基本路径
   baseUrl: './',
@@ -14,11 +14,11 @@ module.exports = {
   devServer:{
     port:1025,
     proxy:{
-      '/api':{
+      '/a':{
         target:target,
         changeOrigin:true,
         pathRewrite:{
-          '^/api':''
+          '^/a':''
         }
       },
     }
