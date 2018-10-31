@@ -9,8 +9,9 @@
               background-color="#009688"
               text-color="#fff"
               active-text-color="#ffd04b">
-        <el-menu-item index="/backstage/1">学校维度</el-menu-item>
-        <el-menu-item index="2">档案管理</el-menu-item>
+        <el-menu-item index="/backstage/1">国家维度</el-menu-item>
+        <el-menu-item index="/backstage/2">学校维度</el-menu-item>
+        <el-menu-item index="/backstage/3">档案管理</el-menu-item>
         <el-menu-item index="3">过程评价</el-menu-item>
         <el-menu-item index="5">成长奖章</el-menu-item>
         <el-menu-item index="6">管理员设置</el-menu-item>
