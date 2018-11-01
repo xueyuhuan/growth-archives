@@ -52,8 +52,7 @@
             </div>
             <el-card shadow="hover" class="center">
                 <header slot="header">2017-2018学年</header>
-                <img class="bg" src="../assets/img/test1.png"/>
-                <!--<img class="tree" src="../assets/img/tree/1.png"/>-->
+                <div class="tree"></div>
             </el-card>
             <div class="right">
                 <el-card shadow="hover" class="evaluate-list">
@@ -140,6 +139,13 @@
 </script>
 
 <style lang="scss">
+    @keyframes myfirst
+    {
+        0%   {background-image: url("../assets/img/1.png");}
+        25%  {background-image: url("../assets/img/2.png");}
+        50%  {background-image: url("../assets/img/3.png");}
+        100% {background-image: url("../assets/img/1.png");}
+    }
     .archives{
         @extend %width;
         .content{
@@ -184,15 +190,12 @@
             .center{
                 flex: 1;
                 margin: 5px 5px 0 5px;
-                position: relative;
-                img.bg{
+                .tree{
                     width: 100%;
-                }
-                img.tree{
-                    position: absolute;
-                    left: 42%;
-                    bottom: 150px;
-                    width: 100px;
+                    height: 500px;
+                    background: url("../assets/img/1.png") no-repeat center center;
+                    background-size: 100%;
+                    animation: myfirst 5s infinite;
                 }
             }
             .right{

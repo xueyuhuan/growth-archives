@@ -52,7 +52,7 @@
                     <el-input v-model="ruleForm.title"></el-input>
                 </el-form-item>
                 <el-form-item label="获奖时间">
-                    <el-date-picker v-model="ruleForm.archive_date" type="date" placeholder="选择日期"></el-date-picker>
+                    <el-date-picker v-model="ruleForm.archive_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
                 </el-form-item>
                 <el-form-item label="学校维度" prop="school">
                     <el-select v-model="ruleForm.dimensionality_school_id" placeholder="请选择学校维度" @change="schoolChange">
@@ -67,7 +67,7 @@
                 <el-form-item label="成长值">
                     <el-input v-model="ruleForm.growth" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="详细描述" prop="des">
+                <el-form-item label="详细描述" prop="desc">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.description"></el-input>
                 </el-form-item>
             </el-form>
@@ -106,9 +106,15 @@
           description:'',//详细描述
         },
         rules: {
-          name: [
-            { required: true, message: '不能为空', trigger: 'blur' },
-          ]
+          title: [
+            { required: true, message: '标题不能为空', trigger: 'blur' },
+          ],
+          // school: [
+          //   { required: true, message: '请选择学校维度', trigger: 'change' }
+          // ],
+          // desc: [
+          //   { required: true, message: '请填写详细描述', trigger: 'blur' },
+          // ],
         }
       }
     },
@@ -181,10 +187,21 @@
       },
       //添加
       add(){
-        this.clearForm();
-        this.dialogVisible=true;
-        this.dialogName='添加';
-        this.getSchoolList();
+        if(this.studentId!==''){
+          this.clearForm();
+          this.ruleForm.student_id=this.studentId;
+          this.dialogVisible=true;
+          this.dialogName='添加';
+          this.getSchoolList();
+        }
+        else if(this.multipleSelection.length===1){
+          this.clearForm();
+          this.ruleForm.student_id=this.multipleSelection[0].student_id;
+          this.dialogVisible=true;
+          this.dialogName='添加';
+          this.getSchoolList();
+        }
+        else this.$message.warning("请选择学生");
       },
       //编辑
       editor(){
@@ -205,16 +222,12 @@
         let url=this.dialogName==='添加'?'/archives/add':'/archives/update';
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(this.ruleForm);
-            if(this.studentId!==''){
-              this.ruleForm.student_id=this.studentId;
-              this.$ajax.post(url,this.ruleForm)
-                .then(res=>{
-                  this.handleCurrentChange(1);
-                  this.dialogVisible=false;
-                  this.$message.success(res.data.errmsg);
-                })
-            }
+            this.$ajax.post(url,this.ruleForm)
+              .then(res=>{
+                this.handleCurrentChange(1);
+                this.dialogVisible=false;
+                this.$message.success(res.data.errmsg);
+              })
           }
           else {
             console.log('error submit!!');
@@ -224,7 +237,21 @@
       },
       //删除
       del(){
-
+        if(this.multipleSelection.length===0){
+          this.$message.warning('请选择数据');
+        }
+        else{
+          let id=[];
+          for(let i=0;i<this.multipleSelection.length;i++){
+            id.push(this.multipleSelection[i].id);
+          }
+          console.log(id);
+          this.$ajax.post('/archives/remove',{id:id})
+            .then(res=>{
+              this.handleCurrentChange(1);
+              this.$message.success(res.data.errmsg)
+            })
+        }
       },
       startOrClose(status){
         if(this.multipleSelection.length===0){
@@ -252,7 +279,6 @@
         this.pageNum=val;
         this.getTableData();
       },
-
     }
   }
 </script>
