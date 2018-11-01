@@ -14,11 +14,11 @@ module.exports = {
   devServer:{
     port:1025,
     proxy:{
-      '/a':{
+      '/proxy':{
         target:target,
         changeOrigin:true,
         pathRewrite:{
-          '^/a':''
+          '^/proxy':''
         }
       },
     }

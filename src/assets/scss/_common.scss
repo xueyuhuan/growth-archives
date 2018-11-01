@@ -14,4 +14,87 @@ fieldset{
     font-weight: 300;
   }
 }
-
+//用户
+.user{
+  @include flex;
+  img{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+  p{
+    line-height: 2;
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    &.name{
+      font-weight: bold;
+    }
+  }
+}
+//用户卡
+.user-card{
+  .user{
+    justify-content: center;
+  }
+  //成长值
+  .growth{
+    font-size: 14px;
+    text-align: center;
+    margin: 20px 0;
+    em{
+      font-size: 16px;
+      font-style: italic;
+      color: #FF5722;
+    }
+  }
+  //排名
+  .rank{
+    @include flex;
+    span:first-child{
+      border-right: 1px #eee solid;
+    }
+    span{
+      flex: 1;
+      font-size: 14px;
+      text-align: center;
+      em{
+        color: #1E9FFF;
+      }
+    }
+  }
+}
+//排行榜
+.rank-list{
+  li{
+    @include flex(space-between);
+    margin-bottom: 10px;
+    .main{
+      @include flex;
+      em{
+        display: inline-block;
+        width: 25px;
+        line-height: 25px;
+        background: #999;
+        font-size: 16px;
+        color: #fff;
+        text-align: center;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+      span{
+        font-size: 14px;
+        color: #666;
+      }
+    }
+    .value{
+      font-size: 16px;
+      font-style: italic;
+      color: #999;
+    }
+  }
+  li:last-child{
+    margin-bottom: 0;
+  }
+}

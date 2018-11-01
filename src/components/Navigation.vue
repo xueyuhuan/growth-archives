@@ -1,7 +1,7 @@
 <template>
   <div id="nav">
     <div class="content">
-      <div class="title"><i class="fa fa-address-book-o"></i>学生成长档案</div>
+      <router-link to="/" class="title"><i class="fa fa-address-book-o"></i>学生成长档案</router-link>
       <el-menu class="menu"
                router
               default-active="backstage/1"

@@ -36,7 +36,7 @@
             <el-table-column align="center" prop="title" label="标题" min-width="180"></el-table-column>
             <el-table-column align="center" prop="lrsname" label="录入人" min-width="80"></el-table-column>
             <el-table-column align="center" prop="growth" label="成长值" min-width="50" sortable></el-table-column>
-            <el-table-column align="center" prop="archive_date" label="录入时间" min-width="150" sortable></el-table-column>
+            <el-table-column align="center" prop="lrsj" label="录入时间" min-width="150" sortable></el-table-column>
         </el-table>
         <el-pagination class="pagination"
                        @current-change="handleCurrentChange"
@@ -48,34 +48,27 @@
         <el-dialog :visible.sync="dialogVisible">
             <header slot="title">{{dialogName}}</header>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-                <el-form-item label="维度名称" prop="name">
-                    <el-input v-model="ruleForm.name"></el-input>
+                <el-form-item label="标题" prop="title">
+                    <el-input v-model="ruleForm.title"></el-input>
                 </el-form-item>
-                <el-form-item label="排序" prop="name">
-                    <el-input-number v-model="ruleForm.order_on" :min="1"></el-input-number>
+                <el-form-item label="获奖时间">
+                    <el-date-picker v-model="ruleForm.archive_date" type="date" placeholder="选择日期"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="允许学生添加">
-                    <el-switch v-model="ruleForm.is_student_add" active-value="1" inactive-value="0"></el-switch>
-                </el-form-item>
-                <el-form-item label="国家维度" prop="name">
-                    <el-select v-model="ruleForm.dimensionality_id" placeholder="请选择国家维度">
-                        <el-option v-for="i in type" :label="i.name" :value="i.id"></el-option>
+                <el-form-item label="学校维度" prop="school">
+                    <el-select v-model="ruleForm.dimensionality_school_id" placeholder="请选择学校维度" @change="schoolChange">
+                        <el-option v-for="i in schoolList" :label="i.name" :value="i.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="记录方式" prop="name">
-                    <el-radio-group v-model="ruleForm.jlfs">
-                        <el-radio label="1">点选</el-radio>
-                        <el-radio label="2">录入</el-radio>
-                    </el-radio-group>
+                <el-form-item label="等级">
+                    <el-select v-model="ruleForm.grade_id" placeholder="请选择等级" @change="gradeChange">
+                        <el-option v-for="i in gradeList" :label="i.name" :value="i.id"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="默认成长分" prop="name">
-                    <el-input-number v-model="ruleForm.growth"></el-input-number>
+                <el-form-item label="成长值">
+                    <el-input v-model="ruleForm.growth" disabled></el-input>
                 </el-form-item>
-                <el-form-item label="维度描述" prop="name">
-                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
-                </el-form-item>
-                <el-form-item label="参考标准" prop="name">
-                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ckbz"></el-input>
+                <el-form-item label="详细描述" prop="des">
+                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.description"></el-input>
                 </el-form-item>
             </el-form>
             <footer slot="footer">
@@ -90,10 +83,10 @@
   export default {
     data() {
       return {
-            classId:'',
+        classList:[],//班级
+        classId:'',
         studentList:[],//学生
         studentId:'',
-        type:[],//国家维度列表
         tableData: [],
         multipleSelection: [],//多选选择项目
         pageSize:10,//
@@ -101,15 +94,16 @@
         total:1,//总页数
         dialogVisible:false,//弹框是否显示
         dialogName:'',//弹框名
+        schoolList:[],//学校维度列表
+        gradeList:[],//等级列表
         ruleForm: {
-          name: '',//学校维度名
-          dimensionality_id:'',//国家维度名
-          order_on: 1,//排序
-          growth: 0,//成长值
-          isStudentAdd: false,//是否允许学生添加
-          jlfs: '1',//记录方式
-          ms: '',//维度描述
-          ckbz:'',//参考
+          student_id:'',//学生id
+          title: '',//标题
+          archive_date:'',//获奖时间
+          dimensionality_school_id: '',//学校维度id
+          grade_id:'',//等级id
+          growth: '',//成长值
+          description:'',//详细描述
         },
         rules: {
           name: [
@@ -119,9 +113,9 @@
       }
     },
     created(){
+      //获取班级
       this.$ajax.post('/archives/getClassInfoList')
         .then(res=>{
-          console.log(res.data.data);
           this.classList=res.data.data;
         });
       this.getTableData();
@@ -138,24 +132,59 @@
       },
       //获取表格数据
       getTableData(){
-        this.$ajax.post('/archives/getArchivesPage ', {studentId:this.studentId})
+        this.$ajax.post('/archives/getArchivesPage', {studentId:this.studentId})
           .then(res=>{
             this.total=res.data.data.records;
             this.tableData=res.data.data.rows;
           })
       },
+      //获取学校维度列表
+      getSchoolList(){
+        this.$ajax.post('/archives/getSchoolDimensionalityList')
+          .then(res=>{
+            this.schoolList=res.data.data;
+          })
+      },
+      //学校维度改变
+      schoolChange(){
+        //置空等级列表和id
+        this.gradeList=[];
+        this.ruleForm.grade_id='';
+        //获取成长值
+        this.$ajax.post('/archives/getGrowth ',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+          .then(res=>{
+            this.ruleForm.growth=res.data.data.growth;
+          });
+        //获取等级列表
+        this.$ajax.post('/archives/getGradeList',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+          .then(res=>{
+            this.gradeList=res.data.data;
+          })
+      },
+      //等级改变
+      gradeChange(){
+        //获取成长值
+        this.$ajax.post('/archives/getGrowth ',{grade_id:this.ruleForm.grade_id})
+          .then(res=>{
+            this.ruleForm.growth=res.data.data.growth;
+          });
+      },
       //清空数据
       clearForm(){
-        this.ruleForm.name='';
-        this.ruleForm.dimensionality_id='';
-        this.ruleForm.ms='';
-        this.ruleForm.ckbz='';
+        this.ruleForm.student_id='';
+        this.ruleForm.title='';
+        this.ruleForm.archive_date='';
+        this.ruleForm.dimensionality_school_id='';
+        this.ruleForm.grade_id='';
+        this.ruleForm.growth='';
+        this.ruleForm.description='';
       },
       //添加
       add(){
         this.clearForm();
         this.dialogVisible=true;
         this.dialogName='添加';
+        this.getSchoolList();
       },
       //编辑
       editor(){
@@ -173,17 +202,21 @@
       },
       //提交
       submitForm(formName) {
-        let url=this.dialogName==='添加'?'/dimensionalitySchool/add':'/dimensionalitySchool/update';
+        let url=this.dialogName==='添加'?'/archives/add':'/archives/update';
         this.$refs[formName].validate((valid) => {
           if (valid) {
             console.log(this.ruleForm);
-            this.$ajax.post(url,this.ruleForm)
-              .then(res=>{
-                this.handleCurrentChange(1);
-                this.dialogVisible=false;
-                this.$message.success(res.data.errmsg);
-              })
-          } else {
+            if(this.studentId!==''){
+              this.ruleForm.student_id=this.studentId;
+              this.$ajax.post(url,this.ruleForm)
+                .then(res=>{
+                  this.handleCurrentChange(1);
+                  this.dialogVisible=false;
+                  this.$message.success(res.data.errmsg);
+                })
+            }
+          }
+          else {
             console.log('error submit!!');
             return false;
           }
