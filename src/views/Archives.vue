@@ -51,7 +51,14 @@
                 </el-card>
             </div>
             <el-card shadow="hover" class="center">
-                <header slot="header">2017-2018学年</header>
+                <header slot="header">
+                    2017-2018学年
+                    <div class="btn">
+                        <el-button size="mini">新增</el-button>
+                        <el-button size="mini">导出</el-button>
+                        <el-button size="mini">成长详情</el-button>
+                    </div>
+                </header>
                 <div class="tree"></div>
             </el-card>
             <div class="right">
@@ -190,6 +197,12 @@
             .center{
                 flex: 1;
                 margin: 5px 5px 0 5px;
+                header{
+                    @include flex(space-between);
+                    .btn{
+                        ;
+                    }
+                }
                 .tree{
                     width: 100%;
                     height: 500px;
