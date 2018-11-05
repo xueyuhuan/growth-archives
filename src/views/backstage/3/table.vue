@@ -38,7 +38,7 @@
             <el-table-column align="center" prop="growth" label="成长值" min-width="50" sortable></el-table-column>
             <el-table-column align="center" prop="lrsj" label="录入时间" min-width="150" sortable></el-table-column>
         </el-table>
-        <el-pagination class="pagination"
+        <el-pagination class="pagination" v-show="total>pageSize"
                        @current-change="handleCurrentChange"
                        :current-page=pageNum
                        :page-size=pageSize
@@ -120,7 +120,7 @@
     },
     created(){
       //获取班级
-      this.$ajax.post('/archives/getClassInfoList')
+      this.$ajax.post('/api/archives/getClassInfoList')
         .then(res=>{
           this.classList=res.data.data;
         });
@@ -131,14 +131,14 @@
       classChange(){
         this.studentList=[];
         this.studentId='';
-        this.$ajax.post('/archives/getStudentInfoList',{classId:this.classId})
+        this.$ajax.post('/api/archives/getStudentInfoList',{classId:this.classId})
           .then(res=>{
             this.studentList=res.data.data;
           })
       },
       //获取表格数据
       getTableData(){
-        this.$ajax.post('/archives/getArchivesPage', {studentId:this.studentId})
+        this.$ajax.post('/api/archives/getArchivesPage', {studentId:this.studentId})
           .then(res=>{
             this.total=res.data.data.records;
             this.tableData=res.data.data.rows;
@@ -146,7 +146,7 @@
       },
       //获取学校维度列表
       getSchoolList(){
-        this.$ajax.post('/archives/getSchoolDimensionalityList')
+        this.$ajax.post('/api/archives/getSchoolDimensionalityList')
           .then(res=>{
             this.schoolList=res.data.data;
           })
@@ -157,12 +157,12 @@
         this.gradeList=[];
         this.ruleForm.grade_id='';
         //获取成长值
-        this.$ajax.post('/archives/getGrowth ',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+        this.$ajax.post('/api/archives/getGrowth ',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
           .then(res=>{
             this.ruleForm.growth=res.data.data.growth;
           });
         //获取等级列表
-        this.$ajax.post('/archives/getGradeList',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+        this.$ajax.post('/api/archives/getGradeList',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
           .then(res=>{
             this.gradeList=res.data.data;
           })
@@ -170,7 +170,7 @@
       //等级改变
       gradeChange(){
         //获取成长值
-        this.$ajax.post('/archives/getGrowth ',{grade_id:this.ruleForm.grade_id})
+        this.$ajax.post('/api/archives/getGrowth ',{grade_id:this.ruleForm.grade_id})
           .then(res=>{
             this.ruleForm.growth=res.data.data.growth;
           });
@@ -219,7 +219,7 @@
       },
       //提交
       submitForm(formName) {
-        let url=this.dialogName==='添加'?'/archives/add':'/archives/update';
+        let url=this.dialogName==='添加'?'/api/archives/add':'/api/archives/update';
         this.$refs[formName].validate((valid) => {
           if (valid) {
             this.$ajax.post(url,this.ruleForm)
@@ -246,7 +246,7 @@
             id.push(this.multipleSelection[i].id);
           }
           console.log(id);
-          this.$ajax.post('/archives/remove',{id:id})
+          this.$ajax.post('/api/archives/remove',{id:id})
             .then(res=>{
               this.handleCurrentChange(1);
               this.$message.success(res.data.errmsg)
@@ -262,7 +262,7 @@
           for(let i=0;i<this.multipleSelection.length;i++){
             dimensionalitySchoolIds.push(this.multipleSelection[i].id);
           }
-          this.$ajax.post('/dimensionalitySchool/toUpdateStatus',{dimensionalitySchoolIds:dimensionalitySchoolIds,status:status})
+          this.$ajax.post('/api/dimensionalitySchool/toUpdateStatus',{dimensionalitySchoolIds:dimensionalitySchoolIds,status:status})
             .then(res=>{
               this.handleCurrentChange(1);
               this.$message.success(res.data.errmsg)

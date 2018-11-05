@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import axios from './axios'
+import echarts from 'echarts'
 import './plugins/element.js'
 
 import 'font-awesome/css/font-awesome.css'
@@ -31,7 +32,9 @@ requireComponent.keys().forEach(fileName => {
   )
 })
 
-Vue.prototype.$ajax=axios
+Vue.prototype.$ajax=axios;
+Vue.prototype.$echarts = echarts;
+Vue.prototype.$proxy=process.env.VUE_APP_PROXY;
 
 Vue.config.productionTip = false
 

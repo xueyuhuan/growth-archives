@@ -11,7 +11,10 @@ const instance=axios.create({
   // `headers` 是即将被发送的自定义请求头
   headers:{
     'Content-Type':'application/x-www-form-urlencoded'
-  }
+  },
+  // paramsSerializer: function(params) {
+  //   return qs.stringify(params, {arrayFormat: 'brackets'})
+  // },
 });
 let loading;
 //请求拦截器

@@ -1,4 +1,4 @@
-const target='http://192.168.0.184:8085/api';
+const target='http://192.168.0.184:8085';
 module.exports = {
   // 基本路径
   baseUrl: './',

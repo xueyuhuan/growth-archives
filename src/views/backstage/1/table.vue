@@ -62,7 +62,7 @@
       }
     },
     created(){
-      this.$ajax.post('/dimensionality/main')
+      this.$ajax.post('/api/dimensionality/main')
         .then(res=>{
           console.log(res.data.data);
           this.type=res.data.data;
@@ -79,7 +79,7 @@
         console.log(this.ruleForm);
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$ajax.post('/dimensionality/update',this.ruleForm)
+            this.$ajax.post('/api/dimensionality/update',this.ruleForm)
               .then(res=>{
                 this.$message.success(res.data.errmsg);
                 this.dialogVisible=false;

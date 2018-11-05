@@ -12,6 +12,11 @@ export default new Router({
       component: () => import("./views/Index.vue")
     },
     {
+      path: '/class',
+      name: 'class',
+      component: () => import("./views/Class.vue")
+    },
+    {
       path: '/archives',
       name: 'archives',
       component: () => import("./views/Archives.vue")
@@ -29,6 +34,26 @@ export default new Router({
     {
       path:"/backstage/3",
       component: () => import("./views/backstage/3/table.vue"),
+      meta:{requireAuth:true}
+    },
+    {
+      path:"/backstage/4-1",
+      component: () => import("./views/backstage/4/table1.vue"),
+      meta:{requireAuth:true}
+    },
+    {
+      path:"/backstage/4-2",
+      component: () => import("./views/backstage/4/table2.vue"),
+      meta:{requireAuth:true}
+    },
+    {
+      path:"/backstage/5-1",
+      component: () => import("./views/backstage/5/table1.vue"),
+      meta:{requireAuth:true}
+    },
+    {
+      path:"/backstage/5-2",
+      component: () => import("./views/backstage/5/table2.vue"),
       meta:{requireAuth:true}
     },
   ]

@@ -7,18 +7,18 @@
                     <div class="user">
                         <img src="../assets/img/demo1.png"/>
                         <p>
-                            <strong>同学a</strong><br/>
-                            <span>三年级2班</span>
+                            <strong>{{user.studentName}}</strong><br/>
+                            <span>{{user.className}}</span>
                         </p>
                     </div>
-                    <div class="growth">我的成长值：<em>234</em></div>
+                    <div class="growth">我的成长值：<em>{{user.growths}}</em></div>
                     <div class="rank">
                         <span>
-                            <em>12名</em><br/>
+                            <em>{{user.bjRank}}名</em><br/>
                             班级排名
                         </span>
                         <span>
-                            <em>12名</em><br/>
+                            <em>{{user.bjRank}}名</em><br/>
                             年级排名
                         </span>
                     </div>
@@ -27,39 +27,59 @@
                     <header slot="header">我的资料
                         <el-button type="text" class="editor" @click="editor">{{dataBtnName}}</el-button>
                     </header>
-                    <el-form :model="dataForm" label-width="70px" size="mini" :disabled="dataFormDisabled">
+                    <el-form label-width="70px" size="mini" disabled>
                         <el-form-item label="班主任">
-                            <el-input v-model="dataForm.classTeacher"></el-input>
+                            <el-input v-model="dataForm.teachername+'老师'"></el-input>
                         </el-form-item>
+                    </el-form>
+                    <el-form :model="dataForm" label-width="70px" size="mini" :disabled="dataFormDisabled">
                         <el-form-item label="我的理想">
-                            <el-input v-model="dataForm.ideal"></el-input>
+                            <el-input v-model="dataForm.wdlx"></el-input>
                         </el-form-item>
                         <el-form-item label="兴趣爱好">
-                            <el-input v-model="dataForm.hobby"></el-input>
+                            <el-input v-model="dataForm.xqah"></el-input>
                         </el-form-item>
                         <el-form-item label="我的特长">
-                            <el-input v-model="dataForm.speciality"></el-input>
+                            <el-input v-model="dataForm.wdtc"></el-input>
                         </el-form-item>
                     </el-form>
                 </el-card>
                 <el-card shadow="hover" class="medal-card">
                     <header slot="header">我的奖章</header>
                     <ul>
-                        <li><i class="fa fa-trophy" style="color: #FFB800"></i><span>校长奖章</span></li>
-                        <li><i class="fa fa-star" style="color: #FF5722"></i><span>少先队员</span></li>
+                        <li v-for="i in medalList"><img :src="$proxy+imgUrl+i.jzsl"/><span>{{i.name}}</span></li>
                     </ul>
                 </el-card>
             </div>
             <el-card shadow="hover" class="center">
                 <header slot="header">
-                    2017-2018学年
+                    {{year}}学年
                     <div class="btn">
                         <el-button size="mini">新增</el-button>
                         <el-button size="mini">导出</el-button>
-                        <el-button size="mini">成长详情</el-button>
+                        <el-button size="mini" @click="detailShow=!detailShow">{{detailShow?'成长详情':'成长之树'}}</el-button>
                     </div>
                 </header>
-                <div class="tree"></div>
+                <ul v-show="detailShow">
+                    <li>
+                        <i class="fa fa-thumbs-up green"></i>
+                        <div class="main">
+                            <p>被王老师表扬，成长值+1；</p>
+                            <time>09：38</time>
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa fa-book orange"></i>
+                        <div class="main">
+                            <p>被王老师表扬，成长值+1；</p>
+                            <time>09：38</time>
+                            <div class="img">
+                                <img src="../assets/img/demo1.png"/>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="tree" v-show="!detailShow"></div>
             </el-card>
             <div class="right">
                 <el-card shadow="hover" class="evaluate-list">
@@ -77,35 +97,25 @@
                     </ul>
                 </el-card>
                 <el-card shadow="hover" class="rank-list">
-                    <header slot="header"><span>班级排名</span><span>年级排名</span></header>
-                    <ul>
-                        <li>
+                    <header slot="header">
+                        <span :class="{notActive:!classRankShow}" @click="classRankShow=!classRankShow">班级排名</span>
+                        <span :class="{notActive:classRankShow}" @click="classRankShow=!classRankShow">年级排名</span></header>
+                    <ul v-show="classRankShow">
+                        <li v-for="(i,index) in classRankList">
                             <div class="main">
-                                <em style="background: #FF5722">1</em>
-                                <span>张三<br/>五年级3班</span>
+                                <em :style="{'background':i.color}">{{index+1}}</em>
+                                <span>{{i.user_name}}<br/>{{i.classname}}</span>
                             </div>
-                            <div class="value" style="color: #FF5722">+111</div>
+                            <div class="value" :style="{'color':i.color}">+{{i.growths}}</div>
                         </li>
-                        <li>
+                    </ul>
+                    <ul v-show="!classRankShow">
+                        <li v-for="(i,index) in gradeRankList">
                             <div class="main">
-                                <em style="background: #FFB800">2</em>
-                                <span>张三<br/>五年级3班</span>
+                                <em :style="{'background':i.color}">{{index+1}}</em>
+                                <span>{{i.user_name}}<br/>{{i.classname}}</span>
                             </div>
-                            <div class="value" style="color: #FFB800">+99</div>
-                        </li>
-                        <li>
-                            <div class="main">
-                                <em style="background: #01AAED">3</em>
-                                <span>张三<br/>五年级3班</span>
-                            </div>
-                            <div class="value" style="color: #01AAED">+88</div>
-                        </li>
-                        <li>
-                            <div class="main">
-                                <em>4</em>
-                                <span>张三<br/>五年级3班</span>
-                            </div>
-                            <div class="value">+77</div>
+                            <div class="value" :style="{'color':i.color}">+{{i.growths}}</div>
                         </li>
                     </ul>
                 </el-card>
@@ -119,15 +129,53 @@
     name: "Archives",
     data(){
       return{
+        detailShow:true,//成长详情显示
         dataBtnName:'编辑',
         dataForm:{
-          classTeacher:'李老师',//班主任
-          ideal:'医生',//理想
-          hobby:'篮球，乒乓球',//爱好
-          speciality:'篮球'//特长
+          teachername:'',//班主任
+          wdlx:'',//我的理想
+          xqah:'',//兴趣爱好
+          wdtc:''//我的特长
         },
         dataFormDisabled:true,
+        year:'',//学年
+        medalList:'',//奖章列表
+        imgUrl:'/resource/showImg?path=',
+        classRankList:[],//班级列表
+        classRankShow:true,
+        gradeRankList:[]
       }
+    },
+    computed:{
+      user() {//用户信息
+        return this.$store.state.user;
+      }
+    },
+    created(){
+      this.$ajax.post('/api/student/getInfo')
+        .then(res => {
+          this.dataForm=res.data.data;
+        });
+      //获取学年
+      this.$ajax.post('/api/student/getXn')
+        .then(res => {
+          this.year=res.data.data.xn;
+        });
+      //获取奖章
+      this.$ajax.post('/api/student/getstudentMedal')
+        .then(res => {
+          this.medalList=res.data.data;
+        });
+      //获取班级排行榜
+      this.$ajax.post('/api/myClass/getBjRank')
+        .then(res => {
+          this.classRankList=res.data.data;
+        });
+      //获取年级排行榜
+      this.$ajax.post('/api/myClass/getNjRank ')
+        .then(res => {
+          this.gradeRankList=res.data.data;
+        });
     },
     methods:{
       editor(){
@@ -137,8 +185,12 @@
         }
         else if(this.dataBtnName==='保存'){
           //ajax
-          this.dataBtnName='编辑';
-          this.dataFormDisabled=true;
+          this.$ajax.post('/api/student/updateStudent',this.dataForm)
+            .then(res => {
+              this.dataBtnName='编辑';
+              this.dataFormDisabled=true;
+              this.$message.success(res.data.errmsg);
+            });
         }
       }
     }
@@ -179,8 +231,8 @@
                     li{
                         @include flex;
                         margin-bottom: 15px;
-                        i{
-                            font-size: 20px;
+                        img{
+                            height: 30px;
                         }
                         span{
                             flex: 1;
@@ -199,8 +251,38 @@
                 margin: 5px 5px 0 5px;
                 header{
                     @include flex(space-between);
-                    .btn{
-                        ;
+                }
+                ul{
+                    li{
+                        @include flex(flex-start,flex-start);
+                        border-bottom: 1px #eee solid;
+                        padding: 20px 0;
+                        i{
+                            font-size: 16px;
+                            margin: 18px 20px 0 0;
+                            &.green{
+                                color:#67C23A;
+                            }
+                            &.orange{
+                                color:#FFB800;
+                            }
+                        }
+                        .main{
+                            p{
+                                font-size: 14px;
+                                margin: 5px 0;
+                            }
+                            time{
+                                font-size: 13px;
+                                color: #666;
+                            }
+                            .img{
+                                margin: 14px 0 0 0;
+                            }
+                        }
+                    }
+                    :first-child{
+                        padding-top: 0;
                     }
                 }
                 .tree{
@@ -223,6 +305,22 @@
                     }
                     li:last-child{
                         margin-bottom: 0;
+                    }
+                }
+                .rank-list{
+                    header{
+                        @include flex(space-between,flex-start);
+                        span{
+                            flex: 1;
+                            cursor: pointer;
+                            &.notActive{
+                                color: #aaa;
+                            }
+                        }
+                        :last-child{
+                            text-align: right;
+                            border-left:1px #eee solid;
+                        }
                     }
                 }
             }

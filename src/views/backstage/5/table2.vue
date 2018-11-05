@@ -1,25 +1,11 @@
 <template>
     <el-card class="page">
         <header slot="header">
-            学校维度
+            成长奖章
         </header>
-        <el-form class="search" size="medium" label-width="60px" :inline="true">
-            <el-form-item label="名称">
-                <el-input v-model="xxName" placeholder="学校维度名称"></el-input>
-            </el-form-item>
-            <el-form-item label="类型">
-                <el-select v-model="dimensionalityId" placeholder="国家维度">
-                    <el-option v-for="i in type" :label="i.name" :value="i.id"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item>
-                <el-button size="medium" type="primary" @click="getTableData">查询</el-button>
-            </el-form-item>
-        </el-form>
         <div class="btn">
             <el-button-group>
                 <el-button size="medium" type="primary" icon="el-icon-plus" @click="add">添加</el-button>
-                <el-button size="medium" type="primary" icon="el-icon-edit" @click="editor">编辑</el-button>
             </el-button-group>
             <el-button-group>
                 <el-button size="medium" type="primary" icon="el-icon-check" @click="startOrClose(1)">启用</el-button>
@@ -30,13 +16,14 @@
             <el-table-column align="center" type="selection" width="40"></el-table-column>
             <el-table-column align="center" prop="bh" label="编号" min-width="40" sortable></el-table-column>
             <el-table-column align="center" prop="order_on" label="排序" min-width="40" sortable></el-table-column>
-            <el-table-column align="center" prop="name" label="学校维度" min-width="40"></el-table-column>
-            <el-table-column align="center" prop="gjname" label="国家维度" min-width="40"></el-table-column>
-            <el-table-column align="center" prop="jlfs" label="记录方式" min-width="50" sortable></el-table-column>
-            <el-table-column align="center" prop="is_student_add" label="是否允许学生添加" min-width="40">
-                <template slot-scope="scope">{{scope.row.is_student_add==='1'?'是':'否'}}</template>
+            <el-table-column align="center" prop="name" label="奖章名称" min-width="100"></el-table-column>
+            <el-table-column align="center" prop="rolename" label="使用人员" min-width="80"></el-table-column>
+            <el-table-column align="center" prop="jzsl" label="奖章示例" min-width="50">
+                <template slot-scope="scope">
+                    <img style="width: 40px" :src="$proxy+scope.row.jzsl"/>
+                </template>
             </el-table-column>
-            <el-table-column align="center" prop="growth" label="成长值" min-width="40" sortable></el-table-column>
+            <el-table-column align="center" prop="remark" label="奖励描述" min-width="150"></el-table-column>
             <el-table-column align="center" prop="status" label="状态" min-width="40" sortable>
                 <template slot-scope="scope">
                     <el-tag
@@ -44,8 +31,6 @@
                             disable-transitions>{{scope.row.status==='1'?'使用':'禁用'}}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column prop="ms" label="维度描述"></el-table-column>
-            <el-table-column prop="ckbz" label="参考标准"></el-table-column>
         </el-table>
         <el-pagination class="pagination" v-show="total>pageSize"
                        @current-change="handleCurrentChange"
@@ -57,34 +42,31 @@
         <el-dialog :visible.sync="dialogVisible">
             <header slot="title">{{dialogName}}</header>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-                <el-form-item label="维度名称" prop="name">
+                <el-form-item label="奖章名称" prop="name">
                     <el-input v-model="ruleForm.name"></el-input>
                 </el-form-item>
                 <el-form-item label="排序" prop="name">
                     <el-input-number v-model="ruleForm.order_on" :min="1"></el-input-number>
                 </el-form-item>
-                <el-form-item label="允许学生添加">
-                    <el-switch v-model="ruleForm.is_student_add" active-value="1" inactive-value="0"></el-switch>
-                </el-form-item>
-                <el-form-item label="国家维度" prop="name">
-                    <el-select v-model="ruleForm.dimensionality_id" placeholder="请选择国家维度">
-                        <el-option v-for="i in type" :label="i.name" :value="i.id"></el-option>
+                <el-form-item label="使用人员" prop="name">
+                    <el-select v-model="ruleForm.role_id" placeholder="请选择使用人员">
+                        <el-option v-for="i in roleList" :label="i.name" :value="i.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="记录方式" prop="name">
-                    <el-radio-group v-model="ruleForm.jlfs">
-                        <el-radio label="1">点选</el-radio>
-                        <el-radio label="2">录入</el-radio>
+                <el-form-item label="状态" prop="name">
+                    <el-radio-group v-model="ruleForm.status">
+                        <el-radio label="1">使用</el-radio>
+                        <el-radio label="2">禁用</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="默认成长分" prop="name">
-                    <el-input-number v-model="ruleForm.growth"></el-input-number>
+                <el-form-item label="奖章示例">
+                    <el-upload :action="$proxy+'/upload/uploadFile'" :on-success="handleSuccess">
+                        <el-button size="mini" type="primary" icon="el-icon-upload">选择上传</el-button>
+                        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                    </el-upload>
                 </el-form-item>
-                <el-form-item label="维度描述" prop="name">
-                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
-                </el-form-item>
-                <el-form-item label="参考标准" prop="name">
-                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ckbz"></el-input>
+                <el-form-item label="奖励描述" prop="remark">
+                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.remark"></el-input>
                 </el-form-item>
             </el-form>
             <footer slot="footer">
@@ -99,9 +81,6 @@
   export default {
     data() {
       return {
-        dimensionalityId:'',//搜索国家id
-        xxName:'',//搜索学校名
-        type:[],//国家维度列表
         tableData: [],
         multipleSelection: [],//多选选择项目
         pageSize:10,//
@@ -109,15 +88,14 @@
         total:1,//总页数
         dialogVisible:false,//弹框是否显示
         dialogName:'',//弹框名
+        roleList:[],//使用人员列表
         ruleForm: {
-          name: '',//学校维度名
-          dimensionality_id:'',//国家维度名
+          name: '',//奖章名
+          role_id:'',//使用人员
           order_on: 1,//排序
-          growth: 0,//成长值
-          isStudentAdd: false,//是否允许学生添加
-          jlfs: '1',//记录方式
-          ms: '',//维度描述
-          ckbz:'',//参考
+          status: '1',//状态
+          jzsl: '',//奖章图片地址
+          remark:'',//奖励描述
         },
         rules: {
           name: [
@@ -127,17 +105,16 @@
       }
     },
     created(){
-      this.$ajax.post('/api/dimensionality/main')
+      this.$ajax.post('/api/medal/toAddMedal')
         .then(res=>{
-          this.type=res.data.data;
+          this.roleList=res.data.roleList;
         });
       this.getTableData();
     },
     methods: {
       //获取表格数据
       getTableData(){
-        this.$ajax.post('/api/dimensionalitySchool/main',
-          {pageSize:this.pageSize,pageNum:this.pageNum,dimensionalityId:this.dimensionalityId,xxName:this.xxName})
+        this.$ajax.post('/api/medal/getPage', {pageSize:this.pageSize,pageNum:this.pageNum})
           .then(res=>{
             this.total=res.data.data.records;
             this.tableData=res.data.data.rows;
@@ -146,15 +123,19 @@
       //清空数据
       clearForm(){
         this.ruleForm.name='';
-        this.ruleForm.dimensionality_id='';
-        this.ruleForm.ms='';
-        this.ruleForm.ckbz='';
+        this.ruleForm.role_id='';
+        this.ruleForm.jzsl='';
+        this.ruleForm.remark='';
       },
       //添加
       add(){
         this.clearForm();
         this.dialogVisible=true;
         this.dialogName='添加';
+      },
+      //图片上传
+      handleSuccess(res){
+        this.ruleForm.jzsl=res.path;
       },
       //编辑
       editor(){
@@ -171,10 +152,9 @@
         }
       },//提交
       submitForm(formName) {
-        let url=this.dialogName==='添加'?'/api/dimensionalitySchool/add':'/api/dimensionalitySchool/update';
+        let url=this.dialogName==='添加'?'/api/medal/addMedal':'/api/medal/update';
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(this.ruleForm);
             this.$ajax.post(url,this.ruleForm)
               .then(res=>{
                 this.handleCurrentChange(1);
@@ -192,11 +172,11 @@
           this.$message.warning('请选择数据');
         }
         else{
-          let dimensionalitySchoolIds=[];
+          let ids=[];
           for(let i=0;i<this.multipleSelection.length;i++){
-            dimensionalitySchoolIds.push(this.multipleSelection[i].id);
+            ids.push(this.multipleSelection[i].id);
           }
-          this.$ajax.post('/api/dimensionalitySchool/toUpdateStatus',{dimensionalitySchoolIds:dimensionalitySchoolIds,status:status})
+          this.$ajax.post('/api/medal/setMedalStatus',{ids:ids,status:status})
             .then(res=>{
               this.handleCurrentChange(1);
               this.$message.success(res.data.errmsg)
