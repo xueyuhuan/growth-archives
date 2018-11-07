@@ -3,7 +3,7 @@
         <header slot="header">
             国家维度
         </header>
-        <el-table class="table" :data="type" border stripe>
+        <el-table class="table" :data="tableData" border stripe>
             <el-table-column align="center" prop="bh" label="编号" min-width="40" sortable></el-table-column>
             <el-table-column align="center" prop="orderOn" label="排序" min-width="40" sortable></el-table-column>
             <el-table-column align="center" prop="name" label="名称" min-width="40"></el-table-column>
@@ -19,16 +19,16 @@
         <el-dialog :visible.sync="dialogVisible">
             <header slot="title">编辑</header>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
-                <el-form-item label="维度名称" prop="name">
-                    <el-input v-model="ruleForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="排序" prop="name">
+                <!--<el-form-item label="维度名称" prop="name">-->
+                    <!--<el-input v-model="ruleForm.name"></el-input>-->
+                <!--</el-form-item>-->
+                <el-form-item label="排序" prop="sort">
                     <el-input-number v-model="ruleForm.orderOn" :min="1"></el-input-number>
                 </el-form-item>
-                <el-form-item label="维度描述" prop="name">
+                <el-form-item label="维度描述" prop="des">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
                 </el-form-item>
-                <el-form-item label="参考标准" prop="name">
+                <el-form-item label="参考标准" prop="reference">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ckbz"></el-input>
                 </el-form-item>
             </el-form>
@@ -44,19 +44,25 @@
   export default {
     data() {
       return {
-        type:[],//国家维度列表
+        tableData:[],//国家维度列表
         dialogVisible:false,//弹框是否显示
         ruleForm: {
           bh:'',//编号
           id:'',
-          name: '',//维度名
+
           orderOn: 1,//排序
           ms: '',//维度描述
           ckbz:'',//参考
         },
         rules: {
-          name: [
-            { required: true, message: '不能为空', trigger: 'blur' },
+          sort: [
+            { required: true, message: '排序不能为空', trigger: 'blur' },
+          ],
+          des: [
+            { required: true, message: '清填写维度描述', trigger: 'blur' },
+          ],
+          reference: [
+            { required: true, message: '请填写参考标准', trigger: 'blur' },
           ]
         }
       }
@@ -64,8 +70,7 @@
     created(){
       this.$ajax.post('/api/dimensionality/main')
         .then(res=>{
-          console.log(res.data.data);
-          this.type=res.data.data;
+          this.tableData=res.data.data;
         });
     },
     methods: {
