@@ -25,7 +25,7 @@
                 <el-form-item label="排序" prop="sort">
                     <el-input-number v-model="ruleForm.orderOn" :min="1"></el-input-number>
                 </el-form-item>
-                <el-form-item label="维度描述" prop="des">
+                <el-form-item label="维度描述" prop="ms">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
                 </el-form-item>
                 <el-form-item label="参考标准">
@@ -57,7 +57,7 @@
           sort: [
             { required: true, message: '排序不能为空', trigger: 'blur' },
           ],
-          des: [
+          ms: [
             { required: true, message: '请填写维度描述', trigger: 'blur' },
           ]
         }
