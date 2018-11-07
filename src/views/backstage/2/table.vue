@@ -32,7 +32,9 @@
             <el-table-column align="center" prop="order_on" label="排序" min-width="40" sortable></el-table-column>
             <el-table-column align="center" prop="name" label="学校维度" min-width="40"></el-table-column>
             <el-table-column align="center" prop="gjname" label="国家维度" min-width="40"></el-table-column>
-            <el-table-column align="center" prop="jlfs" label="记录方式" min-width="50" sortable></el-table-column>
+            <el-table-column align="center" prop="jlfs" label="记录方式" min-width="50" sortable>
+                <template slot-scope="scope">{{scope.row.jlfs==='1'?'点选':'录入'}}</template>
+            </el-table-column>
             <el-table-column align="center" prop="is_student_add" label="是否允许学生添加" min-width="40">
                 <template slot-scope="scope">{{scope.row.is_student_add==='1'?'是':'否'}}</template>
             </el-table-column>
@@ -60,30 +62,30 @@
                 <el-form-item label="维度名称" prop="name">
                     <el-input v-model="ruleForm.name"></el-input>
                 </el-form-item>
-                <el-form-item label="排序" prop="name">
+                <el-form-item label="排序" prop="sort">
                     <el-input-number v-model="ruleForm.order_on" :min="1"></el-input-number>
                 </el-form-item>
                 <el-form-item label="允许学生添加">
                     <el-switch v-model="ruleForm.is_student_add" active-value="1" inactive-value="0"></el-switch>
                 </el-form-item>
-                <el-form-item label="国家维度" prop="name">
+                <el-form-item label="国家维度" prop="country">
                     <el-select v-model="ruleForm.dimensionality_id" placeholder="请选择国家维度">
                         <el-option v-for="i in type" :label="i.name" :value="i.id"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="记录方式" prop="name">
+                <el-form-item label="记录方式" prop="mode">
                     <el-radio-group v-model="ruleForm.jlfs">
                         <el-radio label="1">点选</el-radio>
                         <el-radio label="2">录入</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="默认成长分" prop="name">
+                <el-form-item label="默认成长分" prop="growth">
                     <el-input-number v-model="ruleForm.growth"></el-input-number>
                 </el-form-item>
-                <el-form-item label="维度描述" prop="name">
+                <el-form-item label="维度描述" prop="des">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
                 </el-form-item>
-                <el-form-item label="参考标准" prop="name">
+                <el-form-item label="参考标准">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ckbz"></el-input>
                 </el-form-item>
             </el-form>
@@ -114,14 +116,29 @@
           dimensionality_id:'',//国家维度名
           order_on: 1,//排序
           growth: 0,//成长值
-          isStudentAdd: false,//是否允许学生添加
+          isStudentAdd: '1',//是否允许学生添加
           jlfs: '1',//记录方式
           ms: '',//维度描述
           ckbz:'',//参考
         },
         rules: {
           name: [
-            { required: true, message: '不能为空', trigger: 'blur' },
+            { required: true, message: '维度名称不能为空', trigger: 'blur' },
+          ],
+          sort: [
+            { required: true, message: '排序不能为空', trigger: 'blur' },
+          ],
+          country: [
+            { required: true, message: '请选择国家维度', trigger: 'change' },
+          ],
+          mode: [
+            { required: true, message: '请选择记录方式', trigger: 'change' },
+          ],
+          growth: [
+            { required: true, message: '请输入成长分值', trigger: 'blur' },
+          ],
+          des: [
+            { required: true, message: '请填写维度描述', trigger: 'blur' },
           ]
         }
       }

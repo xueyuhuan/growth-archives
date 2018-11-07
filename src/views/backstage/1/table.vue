@@ -28,7 +28,7 @@
                 <el-form-item label="维度描述" prop="des">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ms"></el-input>
                 </el-form-item>
-                <el-form-item label="参考标准" prop="reference">
+                <el-form-item label="参考标准">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.ckbz"></el-input>
                 </el-form-item>
             </el-form>
@@ -49,7 +49,6 @@
         ruleForm: {
           bh:'',//编号
           id:'',
-
           orderOn: 1,//排序
           ms: '',//维度描述
           ckbz:'',//参考
@@ -59,10 +58,7 @@
             { required: true, message: '排序不能为空', trigger: 'blur' },
           ],
           des: [
-            { required: true, message: '清填写维度描述', trigger: 'blur' },
-          ],
-          reference: [
-            { required: true, message: '请填写参考标准', trigger: 'blur' },
+            { required: true, message: '请填写维度描述', trigger: 'blur' },
           ]
         }
       }
