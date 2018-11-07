@@ -24,7 +24,7 @@
             </el-form-item>
         </el-form>
         <el-table class="table" :data="tableData" border stripe>
-            <el-table-column align="center" prop="zrs" label="周次" min-width="60" sortable></el-table-column>
+            <el-table-column align="center" prop="weeklyname" label="周次" min-width="60" sortable></el-table-column>
             <el-table-column align="center" prop="stuedenttxs" label="学生自评/应评总数" min-width="100" sortable>
                 <template slot-scope="scope">
                     <span>{{scope.row.stuedenttxs}}/{{scope.row.zrs}}</span>
@@ -103,7 +103,8 @@
 
         dialogVisible:false,//弹框是否显示
         dialogName:'',//弹框名
-        evaluationList:[]//评价列表
+        evaluationList:[],//评价列表
+        weeklyid:''
       }
     },
     created(){
@@ -138,15 +139,17 @@
             this.tableData=res.data.data.rows;
           })
       },
-      handle(){
+      handle(row){
         this.dialogVisible=true;
         this.dialogName='评价';
+        console.log(row);
+        this.weeklyid=row.weeklyid;
         this.getEvaluationList();
       },
       //获取评价列表
       getEvaluationList(){
         this.$ajax.post('/api/processEvaluate/getEvaluationList',
-          {classId:this.classId,userType:'teacher'})
+          {weekly:this.weeklyid,classId:this.classId})
           .then(res=>{
             this.evaluationList=res.data.data;
           })
@@ -154,9 +157,19 @@
       //提交
       submitForm() {
         console.log(this.evaluationList);
-        this.$ajax.post('/api/processEvaluate/addEvaluation',this.evaluationList)
+        let studentid=[] ,temp1=[],temp2=[],temp3=[],others=[];
+        for(let i=0;i<this.evaluationList.length;i++){
+          studentid .push(this.evaluationList[i].studentid );
+          temp1.push(this.evaluationList[i].temp1);
+          temp2.push(this.evaluationList[i].temp2);
+          temp3.push(this.evaluationList[i].temp3);
+          others.push(this.evaluationList[i].other);
+        }
+        this.$ajax.post('/api/processEvaluate/addEvaluation',
+          {studentId:studentid,temp1:temp1,temp2:temp2,temp3:temp3,others:others,weekly:this.weeklyid,classId:this.classId})
           .then(res=>{
-
+            this.dialogVisible=false;
+            this.$message.success(res.data.errmsg);
           })
       },
     }

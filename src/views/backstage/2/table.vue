@@ -80,7 +80,17 @@
                         <el-radio label="2">录入</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="默认成长分" prop="growth">
+                <template v-if="ruleForm.jlfs==='2'">
+                    <el-form-item label="等级设置">
+                        <el-button type="primary" plain @click="addGrade" icon="el-icon-plus">新增等级</el-button>
+                    </el-form-item>
+                    <el-form-item class="grade" v-for="i in ruleForm.gradelist">
+                        <el-input class="name" v-model="i.name" placeholder="请输入等级名称"></el-input>
+                        <el-input-number class="growth" v-model="i.growth"></el-input-number>
+                        <el-button type="danger" icon="el-icon-delete" circle @click.prevent="removeGrade(i)"></el-button>
+                    </el-form-item>
+                </template>
+                <el-form-item label="默认成长分">
                     <el-input-number v-model="ruleForm.growth"></el-input-number>
                 </el-form-item>
                 <el-form-item label="维度描述" prop="ms">
@@ -117,6 +127,9 @@
           dimensionality_id:'',//国家维度名
           order_on: 1,//排序
           growth: 0,//成长值
+          gradelist:[],//等级
+          gradelistname:[],
+          gradelistgrowth:[],
           isStudentAdd: '1',//是否允许学生添加
           jlfs: '1',//记录方式
           ms: '',//维度描述
@@ -138,10 +151,11 @@
           ms: [
             { required: true, message: '请填写维度描述', trigger: 'blur' },
           ]
-        }
+        },
       }
     },
     created(){
+
       this.$ajax.post('/api/dimensionality/main')
         .then(res=>{
           this.type=res.data.data;
@@ -164,6 +178,7 @@
         this.ruleForm.dimensionality_id='';
         this.ruleForm.ms='';
         this.ruleForm.ckbz='';
+        this.ruleForm.gradelist=[]
       },
       //添加
       add(){
@@ -184,9 +199,28 @@
           this.dialogName='编辑';
           this.ruleForm=this.multipleSelection[0];
         }
-      },//提交
+      },
+      addGrade() {
+        this.ruleForm.gradelist.push({
+          name: '',
+          growth: 0,
+        });
+      },
+      removeGrade(item) {
+        let index = this.ruleForm.gradelist.indexOf(item);
+        if (index !== -1) {
+          this.ruleForm.gradelist.splice(index, 1)
+        }
+      },
+      //提交
       submitForm(formName) {
         let url=this.dialogName==='添加'?'/api/dimensionalitySchool/add':'/api/dimensionalitySchool/update';
+        if(this.ruleForm.gradelist[0].name!==''){
+          for(let i in this.ruleForm.gradelist){
+            this.ruleForm.gradelistname.push(this.ruleForm.gradelist[i].name);
+            this.ruleForm.gradelistgrowth.push(this.ruleForm.gradelist[i].growth);
+          }
+        }
         this.$refs[formName].validate((valid) => {
           if (valid) {
             console.log(this.ruleForm);
@@ -234,6 +268,16 @@
 </script>
 
 <style lang="scss">
+    .grade .el-form-item__content{
+        @include flex;
+        .name{
+            margin-right: 20px;
+            width: 60%;
+        }
+        .growth{
+            margin-right: 20px;
+        }
+    }
     .el-card{
         @extend %width;
         .search{

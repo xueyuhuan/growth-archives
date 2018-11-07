@@ -12,6 +12,9 @@ const instance=axios.create({
   headers:{
     'Content-Type':'application/x-www-form-urlencoded'
   },
+  // headers:{
+  //   'Content-Type':'application/json'
+  // },
   // paramsSerializer: function(params) {
   //   return qs.stringify(params, {arrayFormat: 'brackets'})
   // },

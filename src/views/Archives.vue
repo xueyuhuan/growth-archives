@@ -79,7 +79,12 @@
                         </div>
                     </li>
                 </ul>
-                <div class="tree" v-show="!detailShow"></div>
+                <div class="tree" v-show="!detailShow">
+                    <img src="../assets/img/tree/5.png"/>
+                    <div id="radar">
+
+                    </div>
+                </div>
             </el-card>
             <div class="right">
                 <el-card shadow="hover" class="evaluate-list">
@@ -129,7 +134,7 @@
     name: "Archives",
     data(){
       return{
-        detailShow:true,//成长详情显示
+        detailShow:false,//成长详情显示
         dataBtnName:'编辑',
         dataForm:{
           teachername:'',//班主任
@@ -150,6 +155,9 @@
       user() {//用户信息
         return this.$store.state.user;
       }
+    },
+    mounted(){
+      this.drawRadar();
     },
     created(){
       this.$ajax.post('/api/student/getInfo')
@@ -192,19 +200,59 @@
               this.$message.success(res.data.errmsg);
             });
         }
-      }
+      },
+      drawRadar(){
+        // 基于准备好的dom，初始化echarts实例
+        let sexChart = this.$echarts.init(document.getElementById('radar'))
+        // 绘制图表
+        sexChart.setOption({
+          // title: {
+          //   text: '基础雷达图'
+          // },
+          radar: {
+            name: {
+              textStyle: {
+                color: '#333',
+                fontSize:'12px'
+              },
+            },
+            nameGap:2,
+            // 设置雷达图中间射线的颜色
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(131,141,158,.1)',
+              },
+            },
+            indicator: [
+              { name: '信息技术', max: 100},
+              { name: '信息技术', max: 100},
+              { name: '信息技术', max: 100},
+              { name: '信息技术', max: 100},
+              { name: '信息技术', max: 100},
+            ],
+            radius:50
+          },
+          series: [{
+            type: 'radar',
+            data : [
+              {
+                value : [80, 60, 20, 50, 78],
+                name : '',
+                itemStyle:{
+                  normal:{
+                    color: 'rgba(95,184,120,.3)',
+                  }
+                }
+              },
+            ],
+          }]
+        });
+      },
     }
   }
 </script>
 
 <style lang="scss">
-    @keyframes myfirst
-    {
-        0%   {background-image: url("../assets/img/1.png");}
-        25%  {background-image: url("../assets/img/2.png");}
-        50%  {background-image: url("../assets/img/3.png");}
-        100% {background-image: url("../assets/img/1.png");}
-    }
     .archives{
         @extend %width;
         .content{
@@ -286,11 +334,22 @@
                     }
                 }
                 .tree{
-                    width: 100%;
-                    height: 500px;
-                    background: url("../assets/img/1.png") no-repeat center center;
-                    background-size: 100%;
-                    animation: myfirst 5s infinite;
+                    position: relative;
+                    width: 600px;
+                    font-size: 0;
+                    margin: 0 auto;
+                    background: url("../assets/img/tree/bg.jpg") no-repeat;
+                    background-size: cover;
+                    img{
+                        width: 100%;
+                    }
+                    #radar{
+                        position: absolute;
+                        top: 160px;
+                        right: 20px;
+                        width: 180px;
+                        height: 180px;
+                    }
                 }
             }
             .right{

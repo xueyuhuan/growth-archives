@@ -42,18 +42,18 @@
                     <div class="user">
                         <img src="../assets/img/demo1.png"/>
                         <p>
-                            <strong>同学a</strong><br/>
-                            <span>三年级2班</span>
+                            <strong>{{user.studentName}}</strong><br/>
+                            <span>{{user.className}}</span>
                         </p>
                     </div>
-                    <div class="growth">我的成长值：<em>234</em></div>
+                    <div class="growth">我的成长值：<em>{{user.growths}}</em></div>
                     <div class="rank">
                         <span>
-                            <em>12名</em><br/>
+                            <em>{{user.bjRank}}名</em><br/>
                             班级排名
                         </span>
                         <span>
-                            <em>12名</em><br/>
+                            <em>{{user.bjRank}}名</em><br/>
                             年级排名
                         </span>
                     </div>
@@ -61,33 +61,12 @@
                 <el-card shadow="hover" class="rank-list">
                     <header slot="header">本周成长排名</header>
                     <ul>
-                        <li>
+                        <li v-for="(i,index) in gradeRankList">
                             <div class="main">
-                                <em style="background: #FF5722">1</em>
-                                <span>张三<br/>五年级3班</span>
+                                <em :style="{'background':i.color}">{{index+1}}</em>
+                                <span>{{i.user_name}}<br/>{{i.classname}}</span>
                             </div>
-                            <div class="value" style="color: #FF5722">+111</div>
-                        </li>
-                        <li>
-                            <div class="main">
-                                <em style="background: #FFB800">2</em>
-                                <span>张三<br/>五年级3班</span>
-                            </div>
-                            <div class="value" style="color: #FFB800">+99</div>
-                        </li>
-                        <li>
-                            <div class="main">
-                                <em style="background: #01AAED">3</em>
-                                <span>张三<br/>五年级3班</span>
-                            </div>
-                            <div class="value" style="color: #01AAED">+88</div>
-                        </li>
-                        <li>
-                            <div class="main">
-                                <em>4</em>
-                                <span>张三<br/>五年级3班</span>
-                            </div>
-                            <div class="value">+77</div>
+                            <div class="value" :style="{'color':i.color}">+{{i.growths}}</div>
                         </li>
                     </ul>
                 </el-card>
@@ -98,7 +77,24 @@
 
 <script>
   export default {
-    name: "Index"
+    name: "Index",
+    data(){
+      return{
+        gradeRankList:[],//年级排行榜列表
+      }
+    },
+    computed:{
+      user() {//用户信息
+        return this.$store.state.user;
+      }
+    },
+    created(){
+      //获取年级排行榜
+      this.$ajax.post('/api/myClass/getNjRank ')
+        .then(res => {
+          this.gradeRankList=res.data.data;
+        });
+    }
   }
 </script>
 
