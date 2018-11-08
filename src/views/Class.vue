@@ -198,7 +198,6 @@
             }
             .right{
                 margin: 5px 0 0 0;
-                flex: 1;
             }
         }
     }

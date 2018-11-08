@@ -61,11 +61,14 @@
                     </div>
                 </header>
                 <ul v-show="detailShow">
-                    <li>
+                    <li v-for="i in detailList">
                         <i class="fa fa-thumbs-up green"></i>
                         <div class="main">
-                            <p>被王老师表扬，成长值+1；</p>
-                            <time>09：38</time>
+                            <p>{{i.title}}，成长值+{{i.growth}}；</p>
+                            <time>{{i.archive_date}}</time>
+                            <div class="img">
+                                <img src="../assets/img/demo1.png"/>
+                            </div>
                         </div>
                     </li>
                     <li>
@@ -73,17 +76,13 @@
                         <div class="main">
                             <p>被王老师表扬，成长值+1；</p>
                             <time>09：38</time>
-                            <div class="img">
-                                <img src="../assets/img/demo1.png"/>
-                            </div>
+
                         </div>
                     </li>
                 </ul>
                 <div class="tree" v-show="!detailShow">
                     <img src="../assets/img/tree/5.png"/>
-                    <div id="radar">
-
-                    </div>
+                    <div id="radar"></div>
                 </div>
             </el-card>
             <div class="right">
@@ -134,7 +133,8 @@
     name: "Archives",
     data(){
       return{
-        detailShow:false,//成长详情显示
+        detailShow:true,//成长详情显示
+        detailList:[],//成长详情列表
         dataBtnName:'编辑',
         dataForm:{
           teachername:'',//班主任
@@ -169,6 +169,8 @@
         .then(res => {
           this.year=res.data.data.xn;
         });
+      //获取成长详情
+
       //获取奖章
       this.$ajax.post('/api/student/getstudentMedal')
         .then(res => {

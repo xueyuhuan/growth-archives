@@ -16,7 +16,7 @@ const instance=axios.create({
   //   'Content-Type':'application/json'
   // },
   // paramsSerializer: function(params) {
-  //   return qs.stringify(params, {arrayFormat: 'brackets'})
+  //   return qs.stringify(params)
   // },
 });
 let loading;

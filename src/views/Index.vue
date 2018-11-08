@@ -4,37 +4,27 @@
         <div class="content">
             <el-card shadow="hover" class="left">
                 <ul class="list">
-                    <li>
+                    <li v-for="i in detailList">
                         <div class="user">
                             <img src="../assets/img/demo1.png"/>
                             <p>
-                                <strong>同学a</strong><br/>
-                                <span>三年级2班</span><br/>
-                                <time>35分钟前</time>
+                                <strong>{{i.user_name}}</strong><br/>
+                                <span>{{i.classname}}</span><br/>
+                                <time>{{i.givetime}}</time>
                             </p>
                         </div>
                         <div class="text">
-                            <p>校级绘画比赛一等奖的活动。</p>
+                            <p>{{i.title}}。</p>
                             <img src="../assets/img/demo1.png"/>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="user">
-                            <img src="../assets/img/demo1.png"/>
-                            <p>
-                                <strong>同学a</strong><br/>
-                                <span>三年级2班</span><br/>
-                                <time>35分钟前</time>
-                            </p>
-                        </div>
-                        <div class="text">
-                            <p>校级绘画比赛一等奖的活动。</p>
                         </div>
                     </li>
                 </ul>
-                <el-pagination background
-                        layout="prev, pager, next"
-                        :total="50">
+                <el-pagination class="pagination" v-show="total>pageSize" background
+                               @current-change="handleCurrentChange"
+                               :current-page=pageNum
+                               :page-size=pageSize
+                               layout="total, prev, pager, next, jumper"
+                               :total=total>
                 </el-pagination>
             </el-card>
             <div class="right">
@@ -80,6 +70,10 @@
     name: "Index",
     data(){
       return{
+        detailList:[],//详情列表
+        pageSize:10,//
+        pageNum:1,//当前页
+        total:1,//总页数
         gradeRankList:[],//年级排行榜列表
       }
     },
@@ -89,11 +83,24 @@
       }
     },
     created(){
+      //获取详情列表
+      this.$ajax.post('/api/desktop/getArchivesList')
+        .then(res=>{
+          this.total=res.data.data.records;
+          this.detailList=res.data.data.rows;
+        });
       //获取年级排行榜
       this.$ajax.post('/api/myClass/getNjRank ')
         .then(res => {
           this.gradeRankList=res.data.data;
         });
+    },
+    methods:{
+      //分页
+      handleCurrentChange(val) {
+        this.pageNum=val;
+        this.getTableData();
+      },
     }
   }
 </script>
@@ -120,6 +127,7 @@
                                 margin: 14px 0 0 0;
                             }
                             img{
+                                width: 200px;
                                 margin: 14px 0 0 0;
                             }
                         }

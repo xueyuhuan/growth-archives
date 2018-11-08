@@ -31,15 +31,23 @@
             <el-table-column align="center" type="selection" width="40"></el-table-column>
             <el-table-column align="center" prop="bh" label="编号" min-width="40" sortable></el-table-column>
             <el-table-column align="center" prop="order_on" label="排序" min-width="40" sortable></el-table-column>
-            <el-table-column align="center" prop="name" label="学校维度" min-width="40"></el-table-column>
-            <el-table-column align="center" prop="gjname" label="国家维度" min-width="40"></el-table-column>
-            <el-table-column align="center" prop="jlfs" label="记录方式" min-width="50" sortable>
+            <el-table-column align="center" prop="name" label="学校维度" min-width="50"></el-table-column>
+            <el-table-column align="center" prop="gjname" label="国家维度" min-width="50"></el-table-column>
+            <el-table-column align="center" prop="jlfs" label="记录方式" min-width="40">
                 <template slot-scope="scope">{{scope.row.jlfs==='1'?'点选':'录入'}}</template>
             </el-table-column>
             <el-table-column align="center" prop="is_student_add" label="是否允许学生添加" min-width="40">
                 <template slot-scope="scope">{{scope.row.is_student_add==='1'?'是':'否'}}</template>
             </el-table-column>
             <el-table-column align="center" prop="growth" label="成长值" min-width="40" sortable></el-table-column>
+            <el-table-column align="center" prop="gradelist" label="等级" min-width="100">
+                <template slot-scope="scope">
+                    <el-table :data="scope.row.gradelist" border size="mini">
+                        <el-table-column prop="name" label="等级"></el-table-column>
+                        <el-table-column prop="growth" label="成长值"></el-table-column>
+                    </el-table>
+                </template>
+            </el-table-column>
             <el-table-column align="center" prop="status" label="状态" min-width="40" sortable>
                 <template slot-scope="scope">
                     <el-tag
@@ -127,9 +135,8 @@
           dimensionality_id:'',//国家维度名
           order_on: 1,//排序
           growth: 0,//成长值
+          grade:'',
           gradelist:[],//等级
-          gradelistname:[],
-          gradelistgrowth:[],
           isStudentAdd: '1',//是否允许学生添加
           jlfs: '1',//记录方式
           ms: '',//维度描述
@@ -178,7 +185,7 @@
         this.ruleForm.dimensionality_id='';
         this.ruleForm.ms='';
         this.ruleForm.ckbz='';
-        this.ruleForm.gradelist=[]
+        this.ruleForm.gradelist=[];
       },
       //添加
       add(){
@@ -201,10 +208,8 @@
         }
       },
       addGrade() {
-        this.ruleForm.gradelist.push({
-          name: '',
-          growth: 0,
-        });
+        console.log(this.ruleForm);
+        this.ruleForm.gradelist.push({name: '', growth: ''});
       },
       removeGrade(item) {
         let index = this.ruleForm.gradelist.indexOf(item);
@@ -215,15 +220,14 @@
       //提交
       submitForm(formName) {
         let url=this.dialogName==='添加'?'/api/dimensionalitySchool/add':'/api/dimensionalitySchool/update';
-        if(this.ruleForm.gradelist[0].name!==''){
-          for(let i in this.ruleForm.gradelist){
-            this.ruleForm.gradelistname.push(this.ruleForm.gradelist[i].name);
-            this.ruleForm.gradelistgrowth.push(this.ruleForm.gradelist[i].growth);
-          }
-        }
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            console.log(this.ruleForm);
+            if(this.ruleForm.jlfs==='1'){
+              this.ruleForm.grade='';
+            }
+            else{
+              this.ruleForm.grade=JSON.stringify(this.ruleForm.gradelist);
+            }
             this.$ajax.post(url,this.ruleForm)
               .then(res=>{
                 this.handleCurrentChange(1);
@@ -231,7 +235,6 @@
                 this.$message.success(res.data.errmsg);
               })
           } else {
-            console.log('error submit!!');
             return false;
           }
         });

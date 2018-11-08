@@ -70,6 +70,11 @@
                 <el-form-item label="详细描述" prop="desc">
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.description"></el-input>
                 </el-form-item>
+                <el-form-item label="附件">
+                    <el-upload :action="$proxy+'/upload/uploadFile'" :on-success="handleSuccess">
+                        <el-button size="mini" type="primary" icon="el-icon-upload">选择上传</el-button>
+                    </el-upload>
+                </el-form-item>
             </el-form>
             <footer slot="footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
@@ -104,6 +109,8 @@
           grade_id:'',//等级id
           growth: '',//成长值
           description:'',//详细描述
+          archiveFile:'',//附件
+          archiveFileList:[]
         },
         rules: {
           title: [
@@ -202,6 +209,11 @@
           this.getSchoolList();
         }
         else this.$message.warning("请选择学生");
+      },
+      //图片上传
+      handleSuccess(res){
+        this.ruleForm.archiveFileList.push(res.path);
+        console.log(this.ruleForm.archiveFileList);
       },
       //编辑
       editor(){
