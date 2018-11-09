@@ -24,7 +24,7 @@
           <el-menu-item index="/backstage/5-1"><router-link to="/backstage/5-1">奖章授予</router-link></el-menu-item>
           <el-menu-item index="/backstage/5-2"><router-link to="/backstage/5-2">奖章设置</router-link></el-menu-item>
         </el-submenu>
-        <!--<el-menu-item index="6">管理员设置</el-menu-item>-->
+        <el-menu-item index="6"><router-link to="/backstage/6">成长奖励</router-link></el-menu-item>
         <el-submenu index="7">
           <template slot="title">用户名</template>
           <el-menu-item index="7-1">注销</el-menu-item>

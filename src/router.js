@@ -56,5 +56,10 @@ export default new Router({
       component: () => import("./views/backstage/5/table2.vue"),
       meta:{requireAuth:true}
     },
+    {
+      path:"/backstage/6",
+      component: () => import("./views/backstage/6/table.vue"),
+      meta:{requireAuth:true}
+    },
   ]
 })

@@ -223,7 +223,7 @@
       },
       //上传成功
       handleSuccess(res,file,fileList){
-        console.log(res.data.errmsg)
+        console.log(res.errmsg);
         this.fileList=fileList;
       },
       //编辑

@@ -14,12 +14,12 @@
                             </p>
                         </div>
                         <div class="text">
-                            <p>{{i.title}}。</p>
-                            <img src="../assets/img/demo1.png"/>
+                            <p>{{i.title}}</p>
+                            <img v-for="j in i.imglist" :src="$proxy+imgUrl+j.url"/>
                         </div>
                     </li>
                 </ul>
-                <el-pagination class="pagination" v-show="total>pageSize" background
+                <el-pagination class="pagination" background
                                @current-change="handleCurrentChange"
                                :current-page=pageNum
                                :page-size=pageSize
@@ -71,6 +71,7 @@
     data(){
       return{
         detailList:[],//详情列表
+        imgUrl:'/resource/showImg?path=',
         pageSize:10,//
         pageNum:1,//当前页
         total:1,//总页数
@@ -84,18 +85,21 @@
     },
     created(){
       //获取详情列表
-      this.$ajax.post('/api/desktop/getArchivesList')
-        .then(res=>{
-          this.total=res.data.data.records;
-          this.detailList=res.data.data.rows;
-        });
-      //获取年级排行榜
-      this.$ajax.post('/api/myClass/getNjRank ')
+      this.getTableData();
+      //获取周排行榜
+      this.$ajax.post('/api/myClass/getWeekRank')
         .then(res => {
           this.gradeRankList=res.data.data;
         });
     },
     methods:{
+      getTableData(){
+        this.$ajax.post('/api/desktop/getArchivesList',{pageSize:this.pageSize,pageNum:this.pageNum})
+          .then(res=>{
+            this.total=res.data.data.records;
+            this.detailList=res.data.data.rows;
+          });
+      },
       //分页
       handleCurrentChange(val) {
         this.pageNum=val;
@@ -127,8 +131,8 @@
                                 margin: 14px 0 0 0;
                             }
                             img{
-                                width: 200px;
-                                margin: 14px 0 0 0;
+                                height: 200px;
+                                margin: 14px 14px 0 0;
                             }
                         }
                     }

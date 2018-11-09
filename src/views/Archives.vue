@@ -55,33 +55,31 @@
                 <header slot="header">
                     {{year}}学年
                     <div class="btn">
-                        <el-button size="mini">新增</el-button>
+                        <el-button size="mini" @click="add">新增</el-button>
                         <el-button size="mini">导出</el-button>
                         <el-button size="mini" @click="detailShow=!detailShow">{{detailShow?'成长详情':'成长之树'}}</el-button>
                     </div>
                 </header>
                 <ul v-show="detailShow">
                     <li v-for="i in detailList">
-                        <i class="fa fa-thumbs-up green"></i>
+                        <i v-if="i.jlfs==='1'" class="fa fa-thumbs-up green"></i>
+                        <i v-else class="fa fa-book orange"></i>
                         <div class="main">
                             <p>{{i.title}}，成长值+{{i.growth}}；</p>
-                            <time>{{i.archive_date}}</time>
+                            <time>{{i.givetime}}</time>
                             <div class="img">
-                                <img src="../assets/img/demo1.png"/>
+                                <img v-for="j in i.imglist" :src="$proxy+imgUrl+j.url"/>
                             </div>
-                        </div>
-                    </li>
-                    <li>
-                        <i class="fa fa-book orange"></i>
-                        <div class="main">
-                            <p>被王老师表扬，成长值+1；</p>
-                            <time>09：38</time>
-
                         </div>
                     </li>
                 </ul>
                 <div class="tree" v-show="!detailShow">
-                    <img src="../assets/img/tree/5.png"/>
+                    <img v-if="user.growths<100" src="../assets/img/tree/1.png"/>
+                    <img v-if="user.growths>=100&&user.growths<200" src="../assets/img/tree/2.png"/>
+                    <img v-if="user.growths>=200&&user.growths<400" src="../assets/img/tree/3.png"/>
+                    <img v-if="user.growths>=400&&user.growths<700" src="../assets/img/tree/4.png"/>
+                    <img v-if="user.growths>1000" src="../assets/img/tree/5.png"/>
+                    <em>{{user.growths}}</em>
                     <div id="radar"></div>
                 </div>
             </el-card>
@@ -89,14 +87,8 @@
                 <el-card shadow="hover" class="evaluate-list">
                     <header slot="header">我的评价</header>
                     <ul>
-                        <li>
-                            <el-button type="text" icon="el-icon-edit">xx年-xx年第五周评价</el-button>
-                        </li>
-                        <li>
-                            <el-button type="text" icon="el-icon-edit">xx年-xx年第五周评价</el-button>
-                        </li>
-                        <li>
-                            <el-button type="text" icon="el-icon-edit">xx年-xx年第五周评价</el-button>
+                        <li v-for="i in evaluateList">
+                            <el-button type="text" icon="el-icon-edit" @click="jump">{{year}}第{{i.weekly}}周评价</el-button>
                         </li>
                     </ul>
                 </el-card>
@@ -125,6 +117,42 @@
                 </el-card>
             </div>
         </div>
+        <el-dialog :visible.sync="dialogVisible">
+            <header slot="title">新增</header>
+            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
+                <el-form-item label="标题" prop="title">
+                    <el-input v-model="ruleForm.title"></el-input>
+                </el-form-item>
+                <el-form-item label="获奖时间">
+                    <el-date-picker v-model="ruleForm.archive_date" type="date" placeholder="选择日期" value-format="yyyy-MM-dd"></el-date-picker>
+                </el-form-item>
+                <el-form-item label="学校维度" prop="school">
+                    <el-select v-model="ruleForm.dimensionality_school_id" placeholder="请选择学校维度" @change="schoolChange">
+                        <el-option v-for="i in schoolList" :label="i.name" :value="i.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="等级">
+                    <el-select v-model="ruleForm.grade_id" placeholder="请选择等级" @change="gradeChange">
+                        <el-option v-for="i in gradeList" :label="i.name" :value="i.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="成长值">
+                    <el-input v-model="ruleForm.growth" disabled></el-input>
+                </el-form-item>
+                <el-form-item label="详细描述" prop="desc">
+                    <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.description"></el-input>
+                </el-form-item>
+                <el-form-item label="附件">
+                    <el-upload :action="$proxy+'/upload/uploadFile'" :on-remove="handleRemove" :on-success="handleSuccess" :file-list="ruleForm.imglist">
+                        <el-button size="mini" type="primary" icon="el-icon-upload">选择上传</el-button>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <footer slot="footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+            </footer>
+        </el-dialog>
     </div>
 </template>
 
@@ -133,8 +161,6 @@
     name: "Archives",
     data(){
       return{
-        detailShow:true,//成长详情显示
-        detailList:[],//成长详情列表
         dataBtnName:'编辑',
         dataForm:{
           teachername:'',//班主任
@@ -143,12 +169,49 @@
           wdtc:''//我的特长
         },
         dataFormDisabled:true,
-        year:'',//学年
+
         medalList:'',//奖章列表
         imgUrl:'/resource/showImg?path=',
+
+        year:'',//学年
+        // 新增弹框
+        dialogVisible:false,
+        schoolList:[],//学校维度列表
+        gradeList:[],//等级列表
+        ruleForm: {
+          student_id:'',//学生id
+          title: '',//标题
+          archive_date:'',//获奖时间
+          dimensionality_school_id: '',//学校维度id
+          grade_id:'',//等级id
+          growth: '',//成长值
+          description:'',//详细描述
+          archiveFile:'',//附件
+        },
+        archiveFileList:[],//附件所需结构
+        fileList:[],//upload本身上传文件
+        rules: {
+          title: [
+            { required: true, message: '标题不能为空', trigger: 'blur' },
+          ],
+          // school: [
+          //   { required: true, message: '请选择学校维度', trigger: 'change' }
+          // ],
+          // desc: [
+          //   { required: true, message: '请填写详细描述', trigger: 'blur' },
+          // ],
+        },
+
+        detailShow:false,//成长详情显示
+        detailList:[],//成长详情列表
+
+        evaluateList:[],//评价列表
+
         classRankList:[],//班级列表
         classRankShow:true,
-        gradeRankList:[]
+        gradeRankList:[],//年级列表
+
+        radar:[],
       }
     },
     computed:{
@@ -156,10 +219,8 @@
         return this.$store.state.user;
       }
     },
-    mounted(){
-      this.drawRadar();
-    },
     created(){
+      //获取资料信息
       this.$ajax.post('/api/student/getInfo')
         .then(res => {
           this.dataForm=res.data.data;
@@ -170,11 +231,24 @@
           this.year=res.data.data.xn;
         });
       //获取成长详情
-
+      this.getDetailList();
+      //获取radar
+      this.$ajax.post('/api/student/getstudentArchivesList')
+        .then(res => {
+          this.radar=res.data.data;
+        })
+        .then(()=>{
+          this.drawRadar();
+        });
       //获取奖章
       this.$ajax.post('/api/student/getstudentMedal')
         .then(res => {
           this.medalList=res.data.data;
+        });
+      //获取评价列表
+      this.$ajax.post('/api/student/getEvaluateList')
+        .then(res => {
+          this.evaluateList=res.data.data;
         });
       //获取班级排行榜
       this.$ajax.post('/api/myClass/getBjRank')
@@ -187,23 +261,26 @@
           this.gradeRankList=res.data.data;
         });
     },
-    methods:{
-      editor(){
-        if(this.dataBtnName==='编辑'){
-          this.dataBtnName='保存';
-          this.dataFormDisabled=false;
+    methods: {
+      jump(){
+        this.$router.push('/backstage/4-1');
+      },
+      editor() {
+        if (this.dataBtnName === '编辑') {
+          this.dataBtnName = '保存';
+          this.dataFormDisabled = false;
         }
-        else if(this.dataBtnName==='保存'){
+        else if (this.dataBtnName === '保存') {
           //ajax
-          this.$ajax.post('/api/student/updateStudent',this.dataForm)
+          this.$ajax.post('/api/student/updateStudent', this.dataForm)
             .then(res => {
-              this.dataBtnName='编辑';
-              this.dataFormDisabled=true;
+              this.dataBtnName = '编辑';
+              this.dataFormDisabled = true;
               this.$message.success(res.data.errmsg);
             });
         }
       },
-      drawRadar(){
+      drawRadar() {
         // 基于准备好的dom，初始化echarts实例
         let sexChart = this.$echarts.init(document.getElementById('radar'))
         // 绘制图表
@@ -215,10 +292,10 @@
             name: {
               textStyle: {
                 color: '#333',
-                fontSize:'12px'
+                fontSize: '12px'
               },
             },
-            nameGap:2,
+            nameGap: 2,
             // 设置雷达图中间射线的颜色
             axisLine: {
               lineStyle: {
@@ -226,28 +303,127 @@
               },
             },
             indicator: [
-              { name: '信息技术', max: 100},
-              { name: '信息技术', max: 100},
-              { name: '信息技术', max: 100},
-              { name: '信息技术', max: 100},
-              { name: '信息技术', max: 100},
+              {name: this.radar[0].name, max: 10},
+              {name: this.radar[1].name, max: 10},
+              {name: this.radar[2].name, max: 10},
+              {name: this.radar[3].name, max: 10},
+              {name: this.radar[4].name, max: 10},
             ],
-            radius:50
+            radius: 50
           },
           series: [{
             type: 'radar',
-            data : [
+            data: [
               {
-                value : [80, 60, 20, 50, 78],
-                name : '',
-                itemStyle:{
-                  normal:{
+                value: [this.radar[0].growths, this.radar[1].growths, this.radar[2].growths, this.radar[3].growths, this.radar[4].growths],
+                name: '',
+                itemStyle: {
+                  normal: {
                     color: 'rgba(95,184,120,.3)',
                   }
                 }
               },
             ],
           }]
+        });
+      },
+      getDetailList(){
+        this.$ajax.post('/api/student/getstudentArchives')
+          .then(res=>{
+            this.detailList=res.data.data;
+          });
+      },
+      //获取学校维度列表
+      getSchoolList(){
+        this.$ajax.post('/api/archives/getSchoolDimensionalityList')
+          .then(res=>{
+            this.schoolList=res.data.data;
+          })
+      },
+      //学校维度改变
+      schoolChange(){
+        //置空等级列表和id
+        this.gradeList=[];
+        this.ruleForm.grade_id='';
+        //获取成长值
+        this.$ajax.post('/api/archives/getGrowth ',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+          .then(res=>{
+            this.ruleForm.growth=res.data.data.growth;
+          });
+        //获取等级列表
+        this.$ajax.post('/api/archives/getGradeList',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+          .then(res=>{
+            this.gradeList=res.data.data;
+          })
+      },
+      //等级改变
+      gradeChange(){
+        //获取成长值
+        this.$ajax.post('/api/archives/getGrowth ',{grade_id:this.ruleForm.grade_id})
+          .then(res=>{
+            this.ruleForm.growth=res.data.data.growth;
+          });
+      },
+      //清空数据
+      clearForm(){
+        this.ruleForm.student_id='';
+        this.ruleForm.title='';
+        this.ruleForm.archive_date='';
+        this.ruleForm.dimensionality_school_id='';
+        this.ruleForm.grade_id='';
+        this.ruleForm.growth='';
+        this.ruleForm.description='';
+      },
+      //添加
+      add(){
+        this.clearForm();
+        this.dialogVisible=true;
+        this.getSchoolList();
+      },
+      //图片上传
+      //删除
+      handleRemove(file,fileList){
+        let path=file.url?file.url:file.response.path;
+        this.$ajax.post('/resource/deleteFile',{path:path})
+          .then(res=>{
+            console.log(res.data.errmsg);
+          });
+        this.fileList=fileList;
+      },
+      //上传成功
+      handleSuccess(res,file,fileList){
+        console.log(res.errmsg);
+        this.fileList=fileList;
+      },
+      //提交
+      submitForm(formName) {
+        let url='/api/archives/add';
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            for(let i=0;i<this.fileList.length;i++){
+              if(this.fileList[i].response){
+                this.archiveFileList.push({
+                  url:this.fileList[i].response.path,
+                  name:this.fileList[i].name
+                });
+              }
+              else this.archiveFileList.push({
+                url:this.fileList[i].url,
+                name:this.fileList[i].name
+              });
+            }
+            this.ruleForm.archiveFile=JSON.stringify(this.archiveFileList);
+            this.$ajax.post(url,this.ruleForm)
+              .then(res=>{
+                this.getDetailList();
+                this.dialogVisible=false;
+                this.$message.success(res.data.errmsg);
+              })
+          }
+          else {
+            console.log('error submit!!');
+            return false;
+          }
         });
       },
     }
@@ -326,8 +502,9 @@
                                 font-size: 13px;
                                 color: #666;
                             }
-                            .img{
-                                margin: 14px 0 0 0;
+                            img{
+                                height: 100px;
+                                margin: 14px 14px 0 0;
                             }
                         }
                     }
@@ -344,6 +521,15 @@
                     background-size: cover;
                     img{
                         width: 100%;
+                    }
+                    em{
+                        position: absolute;
+                        bottom: 10px;
+                        left: 0;
+                        width: 100%;
+                        font-size: 24px;
+                        font-weight: bold;
+                        text-align: center;
                     }
                     #radar{
                         position: absolute;

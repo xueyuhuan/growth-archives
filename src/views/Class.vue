@@ -9,13 +9,13 @@
             <el-card shadow="hover" class="left">
                 <header slot="header">今日成长</header>
                 <ul>
-                    <li>王一让被王老师表扬，成长值+1。王一让被王老师表扬，成长值+1。</li>
+                    <li v-for="i in todayList">{{i.title}}，成长值+{{i.growth}}</li>
                 </ul>
             </el-card>
             <el-card shadow="hover" class="right">
                 <header slot="header">整体排名</header>
                 <el-tabs v-model="countryId" tab-position="left" @tab-click="handleTab">
-                    <el-tab-pane label="全部" name=" ">
+                    <el-tab-pane label="全部" name="">
                         <ul class="rank-list">
                             <li v-for="(i,index) in classRankList">
                                 <div class="main">
@@ -50,8 +50,9 @@
       return{
         sex:'',
         growth:'',
+        todayList:[],//今日成长
         countryList:[],//国家维度列表
-        countryId:' ',//国家维度id
+        countryId:'',//国家维度id
         classRankList:[],//班级列表
       }
     },
@@ -64,13 +65,18 @@
         .then(()=>{
           this.drawSex();
         });
-      //获取学生成长值
+      //获取学生成长值比例
       this.$ajax.post('/api/myClass/getRankingBL')
         .then(res => {
           this.growth=res.data.data;
         })
         .then(()=>{
           this.drawGrowth();
+        });
+      //获取今日成长列表
+      this.$ajax.post('/api/myClass/getstudentArchives')
+        .then(res=>{
+          this.todayList=res.data.data;
         });
       //国家维度列表
       this.$ajax.post('/api/dimensionality/main')
@@ -189,6 +195,7 @@
         .content{
             @include flex(space-between,flex-start);
             .left{
+                flex:500px 0 0;
                 margin: 5px 5px 0 0;
                 li{
                     font-size: 14px;
@@ -197,6 +204,7 @@
                 }
             }
             .right{
+                flex: 1;
                 margin: 5px 0 0 0;
             }
         }

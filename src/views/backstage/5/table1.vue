@@ -16,7 +16,13 @@
         </el-form>
         <el-table class="table" :data="tableData" border stripe>
             <el-table-column align="center" prop="studentnmae" label="学生姓名" min-width="100" sortable></el-table-column>
-            <el-table-column align="center" prop="xb" label="性别" min-width="60" sortable></el-table-column>
+            <el-table-column align="center" prop="xb" label="性别" min-width="60" sortable>
+                <template slot-scope="scope">
+                    <span v-if="scope.row.xb==='1'">男</span>
+                    <span v-else-if="scope.row.xb==='2'">女</span>
+                    <span v-else>未设置</span>
+                </template>
+            </el-table-column>
             <el-table-column align="center" prop="counts" label="获得奖章数" min-width="80" sortable></el-table-column>
             <el-table-column align="center" label="操作" min-width="150">
                 <template slot-scope="scope">
