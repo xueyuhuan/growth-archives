@@ -162,7 +162,6 @@
       }
     },
     created(){
-
       this.$ajax.post('/api/dimensionality/main')
         .then(res=>{
           this.type=res.data.data;
@@ -208,7 +207,6 @@
         }
       },
       addGrade() {
-        console.log(this.ruleForm);
         this.ruleForm.gradelist.push({name: '', growth: ''});
       },
       removeGrade(item) {
@@ -257,7 +255,6 @@
       },
       //多选
       handleSelectionChange(val) {
-        console.log(val);
         this.multipleSelection=val;
       },
       //分页

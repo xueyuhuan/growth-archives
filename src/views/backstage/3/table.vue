@@ -71,7 +71,7 @@
                     <el-input type="textarea" :autosize="{ minRows: 2}" v-model="ruleForm.description"></el-input>
                 </el-form-item>
                 <el-form-item label="附件">
-                    <el-upload :action="$proxy+'/upload/uploadFile'" :on-success="handleSuccess">
+                    <el-upload :action="$proxy+'/upload/uploadFile'" :on-remove="handleRemove" :on-success="handleSuccess" :file-list="ruleForm.imglist">
                         <el-button size="mini" type="primary" icon="el-icon-upload">选择上传</el-button>
                     </el-upload>
                 </el-form-item>
@@ -110,8 +110,9 @@
           growth: '',//成长值
           description:'',//详细描述
           archiveFile:'',//附件
-          archiveFileList:[]
         },
+        archiveFileList:[],//附件所需结构
+        fileList:[],//upload本身上传文件
         rules: {
           title: [
             { required: true, message: '标题不能为空', trigger: 'blur' },
@@ -211,9 +212,19 @@
         else this.$message.warning("请选择学生");
       },
       //图片上传
-      handleSuccess(res){
-        this.ruleForm.archiveFileList.push(res.path);
-        console.log(this.ruleForm.archiveFileList);
+      //删除
+      handleRemove(file,fileList){
+        let path=file.url?file.url:file.response.path;
+        this.$ajax.post('/resource/deleteFile',{path:path})
+          .then(res=>{
+            console.log(res.data.errmsg);
+          });
+        this.fileList=fileList;
+      },
+      //上传成功
+      handleSuccess(res,file,fileList){
+        console.log(res.data.errmsg)
+        this.fileList=fileList;
       },
       //编辑
       editor(){
@@ -224,9 +235,16 @@
           this.$message.warning('只能选择一项编辑');
         }
         else {
+          this.ruleForm=this.multipleSelection[0];
+          //获取学校维度列表
+          this.getSchoolList();
+          //获取等级列表
+          this.$ajax.post('/api/archives/getGradeList',{dimensionality_school_id:this.ruleForm.dimensionality_school_id})
+            .then(res=>{
+              this.gradeList=res.data.data;
+            });
           this.dialogVisible=true;
           this.dialogName='编辑';
-          this.ruleForm=this.multipleSelection[0];
         }
       },
       //提交
@@ -234,6 +252,20 @@
         let url=this.dialogName==='添加'?'/api/archives/add':'/api/archives/update';
         this.$refs[formName].validate((valid) => {
           if (valid) {
+            console.log(this.fileList);
+            for(let i=0;i<this.fileList.length;i++){
+              if(this.fileList[i].response){
+                this.archiveFileList.push({
+                  url:this.fileList[i].response.path,
+                  name:this.fileList[i].name
+                });
+              }
+              else this.archiveFileList.push({
+                url:this.fileList[i].url,
+                name:this.fileList[i].name
+              });
+            }
+            this.ruleForm.archiveFile=JSON.stringify(this.archiveFileList);
             this.$ajax.post(url,this.ruleForm)
               .then(res=>{
                 this.handleCurrentChange(1);
@@ -283,7 +315,6 @@
       },
       //多选
       handleSelectionChange(val) {
-        console.log(val);
         this.multipleSelection=val;
       },
       //分页
