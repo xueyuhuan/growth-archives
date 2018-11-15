@@ -88,7 +88,7 @@
                     <header slot="header">我的评价</header>
                     <ul>
                         <li v-for="i in evaluateList">
-                            <el-button type="text" icon="el-icon-edit" @click="jump">{{year}}第{{i.weekly}}周评价</el-button>
+                            <el-button type="text" icon="el-icon-edit" @click="eva(i.id)">{{year}}第{{i.weekly}}周评价</el-button>
                         </li>
                     </ul>
                 </el-card>
@@ -117,6 +117,7 @@
                 </el-card>
             </div>
         </div>
+        <!--新增弹窗-->
         <el-dialog :visible.sync="dialogVisible">
             <header slot="title">新增</header>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px">
@@ -151,6 +152,37 @@
             <footer slot="footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+            </footer>
+        </el-dialog>
+        <!--评价弹窗-->
+        <el-dialog class="table-edit" :visible.sync="dialogVisibleEva">
+            <header slot="title">{{dialogName}}</header>
+            <el-table class="table" :data="evaluationList" border stripe>
+                <el-table-column align="center" prop="studentname" label="学生姓名" min-width="100"></el-table-column>
+                <el-table-column align="center" prop="temp1" label="认真完成老师布置的作业" min-width="100">
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.temp1"></el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="temp2" label="学习态度认真">
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.temp2"></el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="temp3" label="积极参与班级组织的活动">
+                    <template slot-scope="scope">
+                        <el-checkbox v-model="scope.row.temp3"></el-checkbox>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" prop="other" label="其他表现" min-width="200">
+                    <template slot-scope="scope">
+                        <el-input v-model="scope.row.other"></el-input>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <footer slot="footer">
+                <el-button @click="dialogVisibleEva = false">取 消</el-button>
+                <el-button type="primary" @click="submitFormEva()">确 定</el-button>
             </footer>
         </el-dialog>
     </div>
@@ -201,6 +233,12 @@
           //   { required: true, message: '请填写详细描述', trigger: 'blur' },
           // ],
         },
+
+        //评价弹框
+        dialogVisibleEva:false,//弹框是否显示
+        dialogName:'',//弹框名
+        evaluationList:[],//评价列表
+        weeklyid:'',
 
         detailShow:false,//成长详情显示
         detailList:[],//成长详情列表
@@ -262,8 +300,29 @@
         });
     },
     methods: {
-      jump(){
-        this.$router.push('/backstage/4-1');
+      eva(id){
+        this.dialogVisibleEva=true;
+        this.dialogName='评价';
+        this.weeklyid=id;
+        this.getEvaluationList();
+      },
+      //获取评价列表
+      getEvaluationList(){
+        this.$ajax.post('/api/processEvaluate/getEvaluationList',
+          {weekly:this.weeklyid,roleId:'6'})
+          .then(res=>{
+            this.evaluationList=res.data.data;
+          })
+      },
+      //提交评价表单
+      submitFormEva() {
+        let temp=JSON.stringify(this.evaluationList);
+        this.$ajax.post('/api/processEvaluate/addEvaluation',
+          {evaluation:temp,weekly:this.weeklyid,roleId:'6'})
+          .then(res=>{
+            this.dialogVisibleEva=false;
+            this.$message.success(res.data.errmsg);
+          })
       },
       editor() {
         if (this.dataBtnName === '编辑') {
@@ -431,6 +490,14 @@
 </script>
 
 <style lang="scss">
+    .table-edit{
+        .el-dialog{
+            width: 1000px;
+        }
+        input{
+            border: none;
+        }
+    }
     .archives{
         @extend %width;
         .content{

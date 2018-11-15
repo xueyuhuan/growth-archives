@@ -2,6 +2,7 @@ import Vue from "vue";
 import axios from 'axios';
 import qs from 'querystring'
 import router from "./router";
+import store from './store'
 //创建实例 axios.create([config])
 const instance=axios.create({
   // `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
@@ -34,8 +35,10 @@ instance.interceptors.request.use(
         // 注：若是提交能直接接受json 格式,即可以不用 qs 序列化
       }
       // 判断是否存在token，如果存在将每个页面header都添加token
-      if(sessionStorage.token){
-        config.headers.Authorization= "Bearer "+sessionStorage.token;
+      // console.log(config.url)
+      // console.log(store.getters.token);
+      if(store.getters.token!==''){
+        config.headers.Authorization= "Bearer "+store.getters.token;
       }
       return config;
       },

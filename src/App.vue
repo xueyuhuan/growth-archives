@@ -13,29 +13,28 @@ export default {
   components: {
     Navigation
   },
-  data(){
-    return{
-      token:''
-    }
-  },
+  // data(){
+  //   return{
+  //     token:''
+  //   }
+  // },
   computed:{
     user() {//用户信息
       return this.$store.state.user;
     },
+    token(){
+      return this.$store.state.token;
+    }
   },
   created(){
-    this.$ajax.post('/api/desktop/getToken')
-      .then(res=>{
-        if (res.data.errcode === '0') {
-          this.$store.commit('setToken', res.data.data.CZDA_TOKEN);//在store.js中设置token
-        }
-        else {
-          this.$message.error(res.data.errmsg);
-        }
-      });
+
     this.getUserInfo();
   },
+  mounted(){
+    console.log(this.token)
+  },
   methods:{
+
     getUserInfo(){
       this.$ajax.post('/api/desktop/getInfo')
         .then(res => {

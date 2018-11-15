@@ -5,6 +5,7 @@ import store from './store'
 import axios from './axios'
 import echarts from 'echarts'
 import './plugins/element.js'
+import {asyncRouterMap} from './router'
 
 import 'font-awesome/css/font-awesome.css'
 
@@ -37,6 +38,71 @@ Vue.prototype.$echarts = echarts;
 Vue.prototype.$proxy=process.env.VUE_APP_PROXY;
 
 Vue.config.productionTip = false
+
+/**
+ * 通过meta.roles判断是否与当前用户权限匹配
+ * @param roles
+ * @param route
+ */
+function hasPermission(roles, route) {
+  if (route.meta && route.meta.roles) {
+    return roles.some(role => route.meta.roles.includes(role))
+  } else {
+    return true
+  }
+}
+/**
+ * 递归过滤异步路由表，返回符合用户角色权限的路由表
+ * @param routes asyncRouterMap
+ * @param roles
+ */
+function filterAsyncRouter(routes, roles) {
+  const res = []
+  routes.forEach(route => {
+    const tmp = { ...route }
+    if (hasPermission(roles, tmp)) {
+      if (tmp.children) {
+        tmp.children = filterAsyncRouter(tmp.children, roles)
+      }
+      res.push(tmp)
+    }
+  })
+  return res
+}
+//判断是否有token
+function hasToken(){
+  if(store.getters.token){
+    return true;
+  }
+  else if(sessionStorage.getItem('token')!==null){
+    store.commit('setToken',sessionStorage['token']);
+    return true
+  }
+  else return false
+}
+router.beforeEach((to, from, next) => {
+  if(hasToken()){
+    if(store.getters.role.length===0){
+      store.dispatch('getInfo')
+        .then(()=>{
+          router.addRoutes(filterAsyncRouter(asyncRouterMap,store.getters.role));
+          next({ ...to, replace: true });
+        })
+    }
+    else next();
+  }
+  else {
+    store.dispatch('getToken')
+      .then(()=>{
+        store.dispatch('getInfo')
+          .then(()=>{
+            router.addRoutes(filterAsyncRouter(asyncRouterMap,store.getters.role));
+            next({ ...to, replace: true });
+          })
+      })
+  }
+});
+
 
 new Vue({
   router,

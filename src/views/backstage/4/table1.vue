@@ -1,7 +1,10 @@
 <template>
     <el-card class="page">
-        <header slot="header">
+        <header slot="header" class="header">
             过程评价
+            <el-select size="small" v-model="roleId" placeholder="请选择" @change="roleChange">
+                <el-option v-for="i in roleList" :label="i.name" :value="i.id"></el-option>
+            </el-select>
         </header>
         <el-form class="search" size="medium" label-width="60px" :inline="true">
             <el-form-item label="学年">
@@ -90,12 +93,15 @@
   export default {
     data() {
       return {
+        roleId:'',
+
         yearList:[],//学年
         yearId:'',
         termList:[{id:'1',name:'第1学期'},{id:'2',name:'第2学期'}],//学期
         termId:'',
         classList:[],//班级
         classId:'',
+
         tableData: [],
         pageSize:10,//
         pageNum:1,//当前页
@@ -107,18 +113,38 @@
         weeklyid:''
       }
     },
+    computed:{
+      roleList() {//用户角色
+        return this.$store.state.roleList;
+      },
+    },
     created(){
-      this.$ajax.post('/api/processEvaluate/getClassList')
-        .then(res=>{
-          this.classList=res.data.data;
-          this.classId=res.data.data[0].classid;
-        })
+      this.roleId=this.roleList[0].id;
+      this.getClassList()
         .then(()=>{
           this.getCurrent();
         })
-      this.$ajax.post('/api/processEvaluate/addEvaluation',{temp0:[false,false,true,false]})
     },
     methods: {
+      roleChange(){
+        this.getClassList();
+        this.getTableData();
+      },
+      //获取班级列表
+      getClassList(){
+        return new Promise((resolve, reject) => {
+          this.$ajax.post('/api/processEvaluate/getClassList',{roleId:this.roleId})
+            .then(res=>{
+              this.classList=res.data.data;
+              this.classId=res.data.data[0].classid;
+              resolve()
+            })
+            .catch(error => {
+              reject(error)
+            })
+        })
+      },
+      //获取当前学年学期
       getCurrent(){
         this.$ajax.post('/api/processEvaluate/getCurrent')
           .then(res=>{
@@ -139,35 +165,28 @@
             this.tableData=res.data.data.rows;
           })
       },
+      //点击评价操作按钮
       handle(row){
         this.dialogVisible=true;
         this.dialogName='评价';
-        console.log(row);
         this.weeklyid=row.weeklyid;
         this.getEvaluationList();
       },
       //获取评价列表
       getEvaluationList(){
         this.$ajax.post('/api/processEvaluate/getEvaluationList',
-          {weekly:this.weeklyid,classId:this.classId})
+          {weekly:this.weeklyid,classId:this.classId,roleId:this.roleId})
           .then(res=>{
             this.evaluationList=res.data.data;
           })
       },
       //提交
       submitForm() {
-        console.log(this.evaluationList);
-        let studentid=[] ,temp1=[],temp2=[],temp3=[],others=[];
-        for(let i=0;i<this.evaluationList.length;i++){
-          studentid .push(this.evaluationList[i].studentid );
-          temp1.push(this.evaluationList[i].temp1);
-          temp2.push(this.evaluationList[i].temp2);
-          temp3.push(this.evaluationList[i].temp3);
-          others.push(this.evaluationList[i].other);
-        }
+        let temp=JSON.stringify(this.evaluationList);
         this.$ajax.post('/api/processEvaluate/addEvaluation',
-          {studentId:studentid,temp1:temp1,temp2:temp2,temp3:temp3,others:others,weekly:this.weeklyid,classId:this.classId})
+          {evaluation:temp,weekly:this.weeklyid,classId:this.classId,roleId:this.roleId})
           .then(res=>{
+            this.getTableData();
             this.dialogVisible=false;
             this.$message.success(res.data.errmsg);
           })
@@ -184,6 +203,9 @@
         input{
             border: none;
         }
+    }
+    .header{
+        @include flex(space-between)
     }
     .el-card{
         @extend %width;

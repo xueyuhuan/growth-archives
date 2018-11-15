@@ -1,6 +1,11 @@
 <template>
     <div class="class">
-        <el-card shadow="hover">我的班级</el-card>
+        <el-card shadow="hover" class="header">
+            我的班级
+            <el-select size="small" v-model="classId" placeholder="选择班级" @change="classChange">
+                <el-option v-for="i in classList" :label="i.class_name" :value="i.id"></el-option>
+            </el-select>
+        </el-card>
         <el-card shadow="hover" class="pie">
             <div id="sex"></div>
             <div id="growth"></div>
@@ -15,7 +20,7 @@
             <el-card shadow="hover" class="right">
                 <header slot="header">整体排名</header>
                 <el-tabs v-model="countryId" tab-position="left" @tab-click="handleTab">
-                    <el-tab-pane label="全部" name="">
+                    <el-tab-pane label="全部" name="-1">
                         <ul class="rank-list">
                             <li v-for="(i,index) in classRankList">
                                 <div class="main">
@@ -48,44 +53,70 @@
     name: "class",
     data(){
       return{
+        classList:[],//班级
+        classId:'',
         sex:'',
         growth:'',
         todayList:[],//今日成长
         countryList:[],//国家维度列表
-        countryId:'',//国家维度id
+        countryId:'-1',//国家维度id
         classRankList:[],//班级列表
       }
     },
     created(){
-      //获取学生男女比例
-      this.$ajax.post('/api/myClass/getstudentBL')
-        .then(res => {
-          this.sex=res.data.data;
-        })
-        .then(()=>{
-          this.drawSex();
-        });
-      //获取学生成长值比例
-      this.$ajax.post('/api/myClass/getRankingBL')
-        .then(res => {
-          this.growth=res.data.data;
-        })
-        .then(()=>{
-          this.drawGrowth();
-        });
-      //获取今日成长列表
-      this.$ajax.post('/api/myClass/getstudentArchives')
+      //获取班级列表
+      this.$ajax.post('/api/archives/getClassInfoList')
         .then(res=>{
-          this.todayList=res.data.data;
-        });
+          this.classList=res.data.data;
+          this.classId=res.data.data[0].id;
+        })
+        .then(()=>{
+          this.getSex();
+          this.getGrowth();
+          this.getToday();
+          this.getClassRank();
+        })
       //国家维度列表
       this.$ajax.post('/api/dimensionality/main')
         .then(res=>{
           this.countryList=res.data.data;
         });
-      this.getClassRank();
     },
     methods:{
+      classChange(val){
+        this.classId=val;
+        this.getSex();
+        this.getGrowth();
+        this.getToday();
+        this.getClassRank();
+      },
+      //获取学生男女比例
+      getSex(){
+        this.$ajax.post('/api/myClass/getstudentBL',{classId:this.classId})
+          .then(res => {
+            this.sex=res.data.data;
+          })
+          .then(()=>{
+            this.drawSex();
+          });
+      },
+      //获取学生成长值比例
+      getGrowth(){
+        this.$ajax.post('/api/myClass/getRankingBL',{classId:this.classId})
+          .then(res => {
+            this.growth=res.data.data;
+          })
+          .then(()=>{
+            this.drawGrowth();
+          });
+      },
+      //获取今日成长列表
+      getToday(){
+        this.$ajax.post('/api/myClass/getstudentArchives',{classId:this.classId})
+          .then(res=>{
+            this.todayList=res.data.data;
+          });
+      },
       drawSex(){
         // 基于准备好的dom，初始化echarts实例
         let sexChart = this.$echarts.init(document.getElementById('sex'))
@@ -163,7 +194,8 @@
       },
       getClassRank(){
         //获取班级排行榜
-        this.$ajax.post('/api/myClass/getBjRank',{dimensionalityId:this.countryId})
+        // if(this.countryId==='0'){this.countryId='';}
+        this.$ajax.post('/api/myClass/getBjRank',{dimensionalityId:this.countryId,classId:this.classId})
           .then(res => {
             this.classRankList=res.data.data;
           });
@@ -178,6 +210,11 @@
 <style lang="scss">
     .class{
         @extend %width;
+        .header{
+            .el-card__body{
+                @include flex(space-between)
+            }
+        }
         .pie{
             margin: 5px 0 0 0;
             .el-card__body{
