@@ -27,14 +27,9 @@ export default {
     }
   },
   created(){
-
-    this.getUserInfo();
-  },
-  mounted(){
-    console.log(this.token)
+    // this.getUserInfo();
   },
   methods:{
-
     getUserInfo(){
       this.$ajax.post('/api/desktop/getInfo')
         .then(res => {

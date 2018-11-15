@@ -69,6 +69,19 @@ function filterAsyncRouter(routes, roles) {
   })
   return res
 }
+//获取cookie
+function getCookie(name){
+  let arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+  if(arr=document.cookie.match(reg)){
+    store.commit('setData',{
+      name:'cookie',
+      data:decodeURIComponent(arr[2])
+    });
+    return decodeURIComponent(arr[2]);
+  }
+  else
+    return false;
+}
 //判断是否有token
 function hasToken(){
   if(store.getters.token){
@@ -92,14 +105,19 @@ router.beforeEach((to, from, next) => {
     else next();
   }
   else {
-    store.dispatch('getToken')
-      .then(()=>{
-        store.dispatch('getInfo')
-          .then(()=>{
-            router.addRoutes(filterAsyncRouter(asyncRouterMap,store.getters.role));
-            next({ ...to, replace: true });
-          })
-      })
+    if(getCookie('LOGIN_UUID')){
+      store.dispatch('getToken')
+        .then(()=>{
+          store.dispatch('getInfo')
+            .then(()=>{
+              router.addRoutes(filterAsyncRouter(asyncRouterMap,store.getters.role));
+              next({ ...to, replace: true });
+            })
+        })
+    }
+    else{
+      window.location.href='/login';
+    }
   }
 });
 

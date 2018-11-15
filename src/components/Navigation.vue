@@ -63,9 +63,24 @@
     //     console.log(to)
     //   }
     // },
+    created(){
+      this.getUserInfo();
+    },
     methods:{
+      getUserInfo(){
+        this.$ajax.post('/api/desktop/getInfo')
+          .then(res => {
+            this.$store.commit('setData',{
+              name:'user',
+              data:res.data.data
+            });
+          });
+      },
       logout(){
         this.$ajax.post('/logout')
+          .then(res=>{
+            window.location.href=res.data.url;
+          })
       }
     }
   };
