@@ -131,6 +131,7 @@
       submitForm() {
         this.$ajax.post('/api/medalStudent/addStudent',{remark:this.remark,medal_id:this.medal_id,student_id:this.studentid})
           .then(res=>{
+            this.handleCurrentChange(1);
             this.dialogVisible=false;
             this.$message.success(res.data.errmsg);
           })
