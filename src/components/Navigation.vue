@@ -79,6 +79,7 @@
       logout(){
         this.$ajax.post('/logout')
           .then(res=>{
+            sessionStorage.clear();
             window.location.href=res.data.url;
           })
       }

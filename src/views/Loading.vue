@@ -4,7 +4,14 @@
 
 <script>
   export default {
-    name: "Loading"
+    name: "Loading",
+    created(){
+      this.$ajax.post('/getLoginUrl')
+        .then(res=>{
+          sessionStorage.clear();
+          window.location.href=res.data.url;
+        })
+    }
   }
 </script>
 

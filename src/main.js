@@ -116,7 +116,11 @@ router.beforeEach((to, from, next) => {
         })
     }
     else{
-      window.location.href='/login';
+      axios.post('getLoginUrl')
+        .then(res=>{
+          sessionStorage.clear();
+          window.location.href=res.data.url;
+        })
     }
   }
 });

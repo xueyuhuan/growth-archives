@@ -31,25 +31,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    // getCookie(context){
-    //   return new Promise((resolve, reject) => {
-    //     //获取cookie
-    //       let arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-    //       if(arr=document.cookie.match(reg)){
-    //         context.commit('setData',{
-    //           name:'cookie',
-    //           data:decodeURIComponent(arr[2])
-    //         });
-    //         resolve(decodeURIComponent(arr[2]));
-    //       }
-    //       else
-    //         reject(false);
-    //   })
-    // },
+    //通过cookie获取token
     getToken(context){
       return new Promise((resolve, reject)=>{
-        console.log(context.getters.cookie);
-        axios.post('/gettoken',{uuid:store.getters.cookie})
+        axios.post('/gettoken',{uuid:context.getters.cookie})
           .then(res=>{
             context.commit('setToken', res.data.token);//在store.js中设置token
             resolve(res.data.token)
@@ -59,6 +44,7 @@ export default new Vuex.Store({
           })
       })
     },
+    //通过token获取角色权限信息
     getInfo(context){
       return new Promise((resolve, reject) => {
         axios.post('/api/user/getInfo')
