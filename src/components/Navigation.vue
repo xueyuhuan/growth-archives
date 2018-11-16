@@ -77,7 +77,7 @@
           });
       },
       logout(){
-        this.$ajax.post('/logout')
+        this.$ajax.post('/logoutApi')
           .then(res=>{
             sessionStorage.clear();
             window.location.href=res.data.url;
