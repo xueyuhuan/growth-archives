@@ -56,10 +56,17 @@
     },
     methods:{
       logout(){
+        let login,logout;
         this.$ajax.post('/logoutApi')
           .then(res=>{
-            sessionStorage.clear();
-            window.location.href=res.data.url;
+            login=res.data.casLoginUrl;
+            logout=res.data.casLogoutUrl;
+            this.$ajax.get(logout)
+              .then(res=>{
+                console.log(res.data);
+                sessionStorage.clear();
+                window.location.href=login;
+              })
           })
       }
     }
