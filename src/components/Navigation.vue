@@ -26,7 +26,7 @@
         </el-submenu>
         <el-menu-item index="6" v-if="this.teacher||this.admin"><router-link to="/backstage/6" >成长奖励</router-link></el-menu-item>
         <el-submenu index="7">
-          <template slot="title">用户名</template>
+          <template slot="title">{{navname}}</template>
           <el-menu-item index="7-1" @click="logout">注销</el-menu-item>
         </el-submenu>
       </el-menu>
@@ -37,16 +37,12 @@
 <script>
   export default {
     name: "Navigation",
-    // data(){
-    //   return{
-    //     student:true,
-    //     teacher:true,
-    //     admin:true,
-    //   }
-    // },
     computed:{
       role() {//用户角色
         return this.$store.state.role;
+      },
+      navname(){
+        return this.$store.state.navname;
       },
       student(){
         return this.role.includes('SYS_STUDENT')
@@ -58,24 +54,7 @@
         return this.role.includes('SYS_ADMIN')
       },
     },
-    // watch:{
-    //   $route(to,from){
-    //     console.log(to)
-    //   }
-    // },
-    created(){
-      this.getUserInfo();
-    },
     methods:{
-      getUserInfo(){
-        this.$ajax.post('/api/desktop/getInfo')
-          .then(res => {
-            this.$store.commit('setData',{
-              name:'user',
-              data:res.data.data
-            });
-          });
-      },
       logout(){
         this.$ajax.post('/logoutApi')
           .then(res=>{

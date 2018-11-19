@@ -64,6 +64,13 @@
       }
     },
     created(){
+      this.$ajax.post('/api/desktop/getInfo')
+        .then(res => {
+          this.$store.commit('setData',{
+            name:'user',
+            data:res.data.data
+          });
+        });
       //获取班级列表
       this.$ajax.post('/api/archives/getClassInfoList')
         .then(res=>{

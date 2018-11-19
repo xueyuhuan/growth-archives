@@ -10,6 +10,7 @@ export default new Vuex.Store({
     token:'',
     role:[],//角色简表
     roleList:[],//角色全表
+    navname:'',//导航显示的用户名
     user:{},//学生用户排行信息
   },
   getters:{
@@ -53,6 +54,10 @@ export default new Vuex.Store({
               name:'roleList',
               data:res.data.data.rolelist
             });
+            context.commit('setData',{
+              name:'navname',
+              data:res.data.data.name
+            })
             let temp=[];
             for(let i=0;i<res.data.data.rolelist.length;i++){
               temp.push(res.data.data.rolelist[i].code);
