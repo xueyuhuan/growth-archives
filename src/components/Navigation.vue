@@ -35,6 +35,7 @@
 </template>
 
 <script>
+  import $ from 'jquery'
   export default {
     name: "Navigation",
     computed:{
@@ -61,12 +62,22 @@
           .then(res=>{
             login=res.data.casLoginUrl;
             logout=res.data.casLogoutUrl;
-            this.$ajax.get(logout)
-              .then(res=>{
-                console.log(res.data);
+            $.ajax({
+              url: logout,
+              type: "GET",
+              dataType: "jsonp",
+              jsonp: "callback",
+              crossDomain: true,
+              cache: false,
+              success: function(data) {
                 sessionStorage.clear();
                 window.location.href=login;
-              })
+                console.log(data)
+              },
+              error: function(data) {
+                console.log(data);
+              }
+            })
           })
       }
     }
