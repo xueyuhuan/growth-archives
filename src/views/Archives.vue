@@ -267,10 +267,6 @@
             data:res.data.data
           });
         });
-      this.$ajax.post('/api/student/getGrowthsMax')
-        .then(res=>{
-          this.max=res.data.data.data.max;
-        });
       //获取资料信息
       this.$ajax.post('/api/student/getInfo')
         .then(res => {
@@ -355,49 +351,57 @@
       drawRadar() {
         // 基于准备好的dom，初始化echarts实例
         let sexChart = this.$echarts.init(document.getElementById('radar'))
-        // 绘制图表
-        sexChart.setOption({
-          // title: {
-          //   text: '基础雷达图'
-          // },
-          radar: {
-            name: {
-              textStyle: {
-                color: '#333',
-                fontSize: '12px'
+        this.$ajax.post('/api/student/getGrowthsMax')
+          .then(res=>{
+            this.max=res.data.data.max;
+            console.log(this.max);
+          })
+          .then(()=>{
+            // 绘制图表
+            console.log(this.max);
+            sexChart.setOption({
+              // title: {
+              //   text: '基础雷达图'
+              // },
+              radar: {
+                name: {
+                  textStyle: {
+                    color: '#333',
+                    fontSize: '12px'
+                  },
+                },
+                nameGap: 2,
+                // 设置雷达图中间射线的颜色
+                axisLine: {
+                  lineStyle: {
+                    color: 'rgba(131,141,158,.1)',
+                  },
+                },
+                indicator: [
+                  {name: this.radar[0].name, max: this.max},
+                  {name: this.radar[1].name, max: this.max},
+                  {name: this.radar[2].name, max: this.max},
+                  {name: this.radar[3].name, max: this.max},
+                  {name: this.radar[4].name, max: this.max},
+                ],
+                radius: 50
               },
-            },
-            nameGap: 2,
-            // 设置雷达图中间射线的颜色
-            axisLine: {
-              lineStyle: {
-                color: 'rgba(131,141,158,.1)',
-              },
-            },
-            indicator: [
-              {name: this.radar[0].name, max: this.max},
-              {name: this.radar[1].name, max: this.max},
-              {name: this.radar[2].name, max: this.max},
-              {name: this.radar[3].name, max: this.max},
-              {name: this.radar[4].name, max: this.max},
-            ],
-            radius: 50
-          },
-          series: [{
-            type: 'radar',
-            data: [
-              {
-                value: [this.radar[0].growths, this.radar[1].growths, this.radar[2].growths, this.radar[3].growths, this.radar[4].growths],
-                name: '',
-                itemStyle: {
-                  normal: {
-                    color: 'rgba(95,184,120,.3)',
-                  }
-                }
-              },
-            ],
-          }]
-        });
+              series: [{
+                type: 'radar',
+                data: [
+                  {
+                    value: [this.radar[0].growths, this.radar[1].growths, this.radar[2].growths, this.radar[3].growths, this.radar[4].growths],
+                    name: '',
+                    itemStyle: {
+                      normal: {
+                        color: 'rgba(95,184,120,.3)',
+                      }
+                    }
+                  },
+                ],
+              }]
+            });
+          })
       },
       getDetailList(){
         this.$ajax.post('/api/student/getstudentArchives')

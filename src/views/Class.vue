@@ -14,7 +14,7 @@
             <el-card shadow="hover" class="left">
                 <header slot="header">今日成长</header>
                 <ul>
-                    <li v-for="i in todayList">{{i.title}}，成长值+{{i.growth}}</li>
+                    <li v-for="i in todayList">【{{i.name}}】{{i.title}}，成长值+{{i.growth}}</li>
                 </ul>
             </el-card>
             <el-card shadow="hover" class="right">
