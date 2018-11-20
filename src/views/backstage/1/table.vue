@@ -73,7 +73,7 @@
       //操作-编辑
       handleEdit(row) {
         this.dialogVisible=true;
-        this.ruleForm=row;
+        this.ruleForm={...row};
       },
       //提交
       submitForm(formName) {

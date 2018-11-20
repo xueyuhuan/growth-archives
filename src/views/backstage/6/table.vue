@@ -71,7 +71,6 @@
       },
       save(){
         let temp=JSON.stringify(this.tableData);
-        console.log(temp);
         this.$ajax.post('/api/archives/addReward',{table:temp,classId:this.search.classId,date:this.search.date})
           .then(res=>{
             this.$message.success(res.data.errmsg);

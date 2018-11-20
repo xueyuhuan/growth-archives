@@ -235,7 +235,7 @@
           this.$message.warning('只能选择一项编辑');
         }
         else {
-          this.ruleForm=this.multipleSelection[0];
+          this.ruleForm={...this.multipleSelection[0]};
           //获取学校维度列表
           this.getSchoolList();
           //获取等级列表

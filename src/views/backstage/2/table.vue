@@ -203,7 +203,7 @@
         else {
           this.dialogVisible=true;
           this.dialogName='编辑';
-          this.ruleForm=this.multipleSelection[0];
+          this.ruleForm={...this.multipleSelection[0]};
         }
       },
       addGrade() {
