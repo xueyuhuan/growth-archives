@@ -250,6 +250,7 @@
         gradeRankList:[],//年级列表
 
         radar:[],
+        max:0
       }
     },
     computed:{
@@ -258,6 +259,18 @@
       }
     },
     created(){
+      //获取学生排名等信息
+      this.$ajax.post('/api/desktop/getInfo')
+        .then(res => {
+          this.$store.commit('setData',{
+            name:'user',
+            data:res.data.data
+          });
+        });
+      this.$ajax.post('/api/student/getGrowthsMax')
+        .then(res=>{
+          this.max=res.data.data.data.max;
+        });
       //获取资料信息
       this.$ajax.post('/api/student/getInfo')
         .then(res => {
@@ -362,11 +375,11 @@
               },
             },
             indicator: [
-              {name: this.radar[0].name, max: 10},
-              {name: this.radar[1].name, max: 10},
-              {name: this.radar[2].name, max: 10},
-              {name: this.radar[3].name, max: 10},
-              {name: this.radar[4].name, max: 10},
+              {name: this.radar[0].name, max: this.max},
+              {name: this.radar[1].name, max: this.max},
+              {name: this.radar[2].name, max: this.max},
+              {name: this.radar[3].name, max: this.max},
+              {name: this.radar[4].name, max: this.max},
             ],
             radius: 50
           },

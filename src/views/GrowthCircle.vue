@@ -86,6 +86,14 @@
     created(){
       //获取详情列表
       this.getTableData();
+      //获取学生排名等信息
+      this.$ajax.post('/api/desktop/getInfo')
+        .then(res => {
+          this.$store.commit('setData',{
+            name:'user',
+            data:res.data.data
+          });
+        });
       //获取周排行榜
       this.$ajax.post('/api/myClass/getWeekRank')
         .then(res => {
