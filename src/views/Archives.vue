@@ -57,7 +57,7 @@
                     <div class="btn">
                         <el-button size="mini" @click="add">新增</el-button>
                         <el-button size="mini">导出</el-button>
-                        <el-button size="mini" @click="detailShow=!detailShow">{{detailShow?'成长详情':'成长之树'}}</el-button>
+                        <el-button size="mini" @click="detailShow=!detailShow">{{detailShow?'成长之树':'成长详情'}}</el-button>
                     </div>
                 </header>
                 <ul v-show="detailShow">
