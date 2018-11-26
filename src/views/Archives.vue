@@ -60,7 +60,7 @@
                         <el-button size="mini" @click="detailShow=!detailShow">{{detailShow?'成长之树':'成长详情'}}</el-button>
                     </div>
                 </header>
-                <ul v-show="detailShow">
+                <ul class="list" v-show="detailShow">
                     <li v-for="i in detailList">
                         <i v-if="i.jlfs==='1'" class="fa fa-thumbs-up green"></i>
                         <i v-else class="fa fa-book orange"></i>
@@ -73,6 +73,13 @@
                         </div>
                     </li>
                 </ul>
+                <el-pagination style="margin-top: 20px" v-show="total>pageSize&&detailShow" background
+                               @current-change="handleCurrentChange"
+                               :current-page=pageNum
+                               :page-size=pageSize
+                               layout="total, prev, pager, next, jumper"
+                               :total=total>
+                </el-pagination>
                 <div class="tree" v-show="!detailShow">
                     <img v-if="user.growths<100" src="../assets/img/tree/1.png"/>
                     <img v-if="user.growths>=100&&user.growths<200" src="../assets/img/tree/2.png"/>
@@ -242,6 +249,9 @@
 
         detailShow:false,//成长详情显示
         detailList:[],//成长详情列表
+        pageSize:10,//
+        pageNum:1,//当前页
+        total:1,//总页数
 
         evaluateList:[],//评价列表
 
@@ -303,7 +313,7 @@
           this.classRankList=res.data.data;
         });
       //获取年级排行榜
-      this.$ajax.post('/api/myClass/getNjRank ')
+      this.$ajax.post('/api/myClass/getNjRank')
         .then(res => {
           this.gradeRankList=res.data.data;
         });
@@ -404,9 +414,10 @@
           })
       },
       getDetailList(){
-        this.$ajax.post('/api/student/getstudentArchives')
+        this.$ajax.post('/api/student/getstudentArchives',{pageSize:this.pageSize,pageNum:this.pageNum})
           .then(res=>{
-            this.detailList=res.data.data;
+            this.detailList=res.data.data.rows;
+            this.total=res.data.data.records;
           });
       },
       //获取学校维度列表
@@ -502,6 +513,11 @@
           }
         });
       },
+      //分页
+      handleCurrentChange(val) {
+        this.pageNum=val;
+        this.getDetailList();
+      },
     }
   }
 </script>
@@ -562,7 +578,7 @@
                 header{
                     @include flex(space-between);
                 }
-                ul{
+                ul.list{
                     li{
                         @include flex(flex-start,flex-start);
                         border-bottom: 1px #eee solid;

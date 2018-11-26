@@ -36,8 +36,10 @@ export default new Vuex.Store({
     getToken(context){
       return new Promise((resolve, reject)=>{
         axios.post('/gettoken',{uuid:context.getters.cookie})
+        // axios.post('/api/desktop/getToken')
           .then(res=>{
             context.commit('setToken', res.data.token);//在store.js中设置token
+            // context.commit('setToken', res.data.data.CZDA_TOKEN);//在store.js中设置token
             resolve(res.data.token)
           })
           .catch(error => {
