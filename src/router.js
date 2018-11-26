@@ -50,7 +50,7 @@ export const asyncRouterMap=[
     path:"/backstage/3",
     name:'档案管理',
     component: () => import("./views/backstage/3/table.vue"),
-    meta:{roles:['SYS_BZR','SYS_TEACHER_MATH','SYS_TEACHER_CHINESE'],teacher:true}
+    meta:{roles:['SYS_BZR','SYS_ADMIN'],headTeacher:true,admin:true}
   },
   {
     path:"/backstage/4-1",
