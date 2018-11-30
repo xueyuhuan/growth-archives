@@ -81,11 +81,7 @@
                                :total=total>
                 </el-pagination>
                 <div class="tree" v-show="!detailShow">
-                    <img v-if="user.growths<100" src="../assets/img/tree/1.png"/>
-                    <img v-if="user.growths>=100&&user.growths<200" src="../assets/img/tree/2.png"/>
-                    <img v-if="user.growths>=200&&user.growths<400" src="../assets/img/tree/3.png"/>
-                    <img v-if="user.growths>=400&&user.growths<700" src="../assets/img/tree/4.png"/>
-                    <img v-if="user.growths>1000" src="../assets/img/tree/5.png"/>
+                    <img v-show="tree" :src="'tree/'+tree+'.png'"/>
                     <em>{{user.growths}}</em>
                     <div id="radar"></div>
                 </div>
@@ -200,6 +196,8 @@
     name: "Archives",
     data(){
       return{
+        user:'',
+        tree:'',
         dataBtnName:'编辑',
         dataForm:{
           teachername:'',//班主任
@@ -263,20 +261,20 @@
         max:0
       }
     },
-    computed:{
-      user() {//用户信息
-        return this.$store.state.user;
-      }
-    },
+    // computed:{
+    //   user() {//用户信息
+    //     return this.$store.state.user;
+    //   },
+    // },
+    // watch:{
+    //   user(val){
+    //     console.log(val.growths)
+    //
+    //   }
+    // },
     created(){
-      //获取学生排名等信息
-      this.$ajax.post('/api/desktop/getInfo')
-        .then(res => {
-          this.$store.commit('setData',{
-            name:'user',
-            data:res.data.data
-          });
-        });
+      this.getStudentCard();
+
       //获取资料信息
       this.$ajax.post('/api/student/getInfo')
         .then(res => {
@@ -319,6 +317,107 @@
         });
     },
     methods: {
+      //获取学生卡（成长值、排名、班级和姓名）
+      getStudentCard(){
+        this.$ajax.post('/api/desktop/getInfo')
+          .then(res => {
+            this.user=res.data.data;
+          })
+          .then(()=>{
+            this.getTreeUrl(this.user.growths)
+          })
+      },
+      getTreeUrl(n){
+        switch(true)
+        {
+          case n<=5:
+            this.tree='1';
+            break;
+          case n>=6&&n<=10:
+            this.tree='2';
+            break;
+          case n>=11&&n<=15:
+            this.tree='3';
+            break;
+          case n>=16&&n<=20:
+            this.tree='4';
+            break;
+          case n>=21&&n<=25:
+            this.tree='5';
+            break;
+          case n>=26&&n<=30:
+            this.tree='6';
+            break;
+          case n>=31&&n<=40:
+            this.tree='7';
+            break;
+          case n>=41&&n<=50:
+            this.tree='8';
+            break;
+          case n>=51&&n<=60:
+            this.tree='9';
+            break;
+          case n>=61&&n<=70:
+            this.tree='10';
+            break;
+          case n>=71&&n<=80:
+            this.tree='11';
+            break;
+          case n>=81&&n<=90:
+            this.tree='12';
+            break;
+          case n>=91&&n<=100:
+            this.tree='13';
+            break;
+          case n>=101&&n<=115:
+            this.tree='14';
+            break;
+          case n>=116&&n<=130:
+            this.tree='15';
+            break;
+          case n>=131&&n<=145:
+            this.tree='16';
+            break;
+          case n>=146&&n<=160:
+            this.tree='17';
+            break;
+          case n>=161&&n<=180:
+            this.tree='18';
+            break;
+          case n>=181&&n<=200:
+            this.tree='19';
+            break;
+          case n>=201&&n<=220:
+            this.tree='20';
+            break;
+          case n>=221&&n<=240:
+            this.tree='21';
+            break;
+          case n>=241&&n<=270:
+            this.tree='22';
+            break;
+          case n>=271&&n<=300:
+            this.tree='23';
+            break;
+          case n>=301&&n<=340:
+            this.tree='24';
+            break;
+          case n>=341&&n<=380:
+            this.tree='25';
+            break;
+          case n>=381&&n<=430:
+            this.tree='26';
+            break;
+          case n>=431&&n<=480:
+            this.tree='27';
+            break;
+          case n>=481&&n<=550:
+            this.tree='28';
+            break;
+          default:
+            this.tree='29';
+        }
+      },
       eva(id){
         this.dialogVisibleEva=true;
         this.dialogName='评价';
@@ -330,7 +429,8 @@
         this.$ajax.post('/api/processEvaluate/getEvaluationList',
           {weekly:this.weeklyid,roleId:'6'})
           .then(res=>{
-            this.evaluationList=res.data.data;
+            this.evaluationList=res.data.data.data;
+            console.log(this.evaluationList);
           })
       },
       //提交评价表单
@@ -364,11 +464,9 @@
         this.$ajax.post('/api/student/getGrowthsMax')
           .then(res=>{
             this.max=res.data.data.max;
-            console.log(this.max);
           })
           .then(()=>{
             // 绘制图表
-            console.log(this.max);
             sexChart.setOption({
               // title: {
               //   text: '基础雷达图'
@@ -479,7 +577,7 @@
       },
       //上传成功
       handleSuccess(res,file,fileList){
-        console.log(res.errmsg);
+        console.log(res.data.errmsg);
         this.fileList=fileList;
       },
       //提交
@@ -503,6 +601,7 @@
             this.$ajax.post(url,this.ruleForm)
               .then(res=>{
                 this.getDetailList();
+                this.getStudentCard();
                 this.dialogVisible=false;
                 this.$message.success(res.data.errmsg);
               })
