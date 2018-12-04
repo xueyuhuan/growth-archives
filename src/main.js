@@ -116,7 +116,7 @@ router.beforeEach((to, from, next) => {
         })
     }
     else{
-      axios.post('getLoginUrl')
+      axios.post('/getLoginUrl')
         .then(res=>{
           sessionStorage.clear();
           window.location.href=res.data.url;

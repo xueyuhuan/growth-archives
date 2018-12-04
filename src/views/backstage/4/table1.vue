@@ -60,19 +60,9 @@
             <header slot="title">{{dialogName}}</header>
             <el-table class="table" :data="evaluationList" border stripe>
                 <el-table-column align="center" prop="studentname" label="学生姓名" min-width="100"></el-table-column>
-                <el-table-column align="center" prop="studentname" label="认真完成老师布置的作业" min-width="100">
+                <el-table-column v-for="i in evaluationHeader" align="center" :prop="'w'+i.id" :label="i.itemName" min-width="100">
                     <template slot-scope="scope">
-                        <el-checkbox v-model="scope.row.temp1"></el-checkbox>
-                    </template>
-                </el-table-column>
-                <el-table-column align="center" prop="temp2" label="学习态度认真">
-                    <template slot-scope="scope">
-                        <el-checkbox v-model="scope.row.temp2"></el-checkbox>
-                    </template>
-                </el-table-column>
-                <el-table-column align="center" prop="temp3" label="积极参与班级组织的活动">
-                    <template slot-scope="scope">
-                        <el-checkbox v-model="scope.row.temp3"></el-checkbox>
+                        <el-checkbox v-model="scope.row[scope.column.property]" true-label="1" false-label="0"></el-checkbox>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" prop="other" label="其他表现" min-width="200">
@@ -110,6 +100,7 @@
         dialogVisible:false,//弹框是否显示
         dialogName:'',//弹框名
         evaluationList:[],//评价列表
+        evaluationHeader:[],//评价列表头
         weeklyid:''
       }
     },
@@ -177,7 +168,8 @@
         this.$ajax.post('/api/processEvaluate/getEvaluationList',
           {weekly:this.weeklyid,classId:this.classId,roleId:this.roleId})
           .then(res=>{
-            this.evaluationList=res.data.data;
+            this.evaluationList=res.data.data.data;
+            this.evaluationHeader=res.data.data.codeList;
           })
       },
       //提交
